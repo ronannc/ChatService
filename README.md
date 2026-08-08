@@ -29,6 +29,38 @@ In addition, [Laracasts](https://laracasts.com) contains thousands of video tuto
 
 You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
+## Local environment (Docker)
+
+This project ships a Docker Compose setup for local development — no manual service installation required.
+
+**Services:** `nginx` (web server, port `8000`), `app` (PHP-FPM 8.5), `worker` (Horizon queue worker), `reverb` (WebSocket server, port `8081`), `postgres` (with `pgvector`), `redis`, `minio` (S3-compatible storage, API on port `9002`, console on port `9091`).
+
+### First-time setup
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+That's it. On first boot the `app` container will:
+
+1. Install Composer dependencies if `vendor/` is missing.
+2. Generate `APP_KEY` if it's not already set.
+3. Run pending migrations.
+
+Once every container reports healthy, the app is available at http://localhost:8000 (health check: http://localhost:8000/up), the Reverb WebSocket server at `localhost:8081`, and the MinIO console at http://localhost:9091.
+
+### Everyday use
+
+```bash
+docker compose up -d       # start everything in the background
+docker compose logs -f app # tail a service's logs
+docker compose exec app php artisan migrate   # run artisan commands inside the app container
+docker compose down        # stop everything (add -v to also wipe volumes/data)
+```
+
+Database, Redis, and MinIO data persist across restarts in named Docker volumes.
+
 ## Agentic Development
 
 Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
