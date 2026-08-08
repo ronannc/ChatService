@@ -1,3 +1,34 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project state
+
+This is a **fresh, unmodified Laravel 13 skeleton** (`laravel/laravel`) — despite the repo name "ChatService", no chat/domain-specific code has been written yet. `app/` only contains the default `Controller`, `User` model, and `AppServiceProvider`. Routes are the stock welcome page and the `inspire` Artisan command. There are no custom migrations, controllers, or feature code beyond what `laravel new` generates.
+
+When you start building real functionality, keep this section updated with the actual architecture (domains, key models/services, queue jobs, external integrations) so future instances don't have to rediscover it from scratch.
+
+## Common commands
+
+```bash
+composer run dev        # Runs server + queue listener + pail (log viewer) + vite concurrently
+php artisan serve       # App server only
+php artisan test --compact                    # Run full test suite (Pest)
+php artisan test --compact --filter=testName   # Run a single test
+vendor/bin/pint --dirty --format agent         # Format only changed PHP files (run after edits)
+npm run dev             # Vite dev server (frontend assets)
+npm run build            # Production frontend build
+```
+
+Database is SQLite (`database/database.sqlite`), migrated automatically via the `composer setup`/`post-create-project-cmd` scripts.
+
+## Tooling
+
+- **Laravel Boost** (MCP server) is installed — see the guidelines block below for its tools (`database-query`, `database-schema`, `search-docs`, etc.) and prefer them over raw shell/file access when applicable.
+- **Pest** is the test framework (not PHPUnit syntax), with the Laravel plugin.
+- **Tailwind CSS v4** + Vite for frontend styling/bundling.
+- No `.ai/rules` directory exists yet — once project-specific conventions are established, the `infer-conventions` skill can populate it.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
