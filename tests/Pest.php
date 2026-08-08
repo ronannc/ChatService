@@ -48,3 +48,8 @@ function something()
 {
     // ..
 }
+
+function adminHeaders(): array
+{
+    return ['X-Admin-Api-Key' => config('chat.admin_api_key')];
+}
