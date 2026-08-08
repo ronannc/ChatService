@@ -61,6 +61,10 @@ docker compose down        # stop everything (add -v to also wipe volumes/data)
 
 Database, Redis, and MinIO data persist across restarts in named Docker volumes.
 
+### Makefile shortcuts
+
+A `Makefile` wraps the commands above so you don't have to type `docker compose` for everyday tasks. Run `make help` for the full list — highlights: `make up`, `make down`, `make down-v`, `make exec-app` (shell into the app container), `make artisan cmd="..."`, `make migrate`, `make seed`, `make fresh` (migrate:fresh + seed), `make test`, `make pint`.
+
 ## Agentic Development
 
 Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
