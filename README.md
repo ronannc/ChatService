@@ -61,6 +61,21 @@ docker compose down        # stop everything (add -v to also wipe volumes/data)
 
 Database, Redis, and MinIO data persist across restarts in named Docker volumes.
 
+### Configuration (ports, users, passwords)
+
+`docker-compose.yml` reads its ports and credentials from the same `.env` file used by Laravel — there's no separate Docker-only env file. Everything has a sane default, so `.env` values are optional overrides:
+
+| Variable | Used for | Default |
+|---|---|---|
+| `APP_PORT` | Host port for `nginx` (the app itself) | `8000` |
+| `REVERB_PORT` | Host port for the Reverb WebSocket server | `8081` |
+| `FORWARD_MINIO_PORT` | Host port for the MinIO S3 API | `9002` |
+| `FORWARD_MINIO_CONSOLE_PORT` | Host port for the MinIO web console | `9091` |
+| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Postgres database/user/password (also used by the `app` container to connect) | `chatservice` / `chatservice` / `chatservice` |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | MinIO root user/password (also used by the `app` container to connect) | `chatservice` / `chatservice123` |
+
+Change any of these in `.env` and re-run `docker compose up -d --build` (or `make up`) — no edits to `docker-compose.yml` needed. Useful if one of the default ports conflicts with something else already running on your machine.
+
 ### Makefile shortcuts
 
 A `Makefile` wraps the commands above so you don't have to type `docker compose` for everyday tasks. Run `make help` for the full list — highlights: `make up`, `make down`, `make down-v`, `make exec-app` (shell into the app container), `make artisan cmd="..."`, `make migrate`, `make seed`, `make fresh` (migrate:fresh + seed), `make test`, `make pint`.

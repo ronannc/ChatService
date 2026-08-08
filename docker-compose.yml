@@ -4,28 +4,31 @@ x-app-image: &app-image
     dockerfile: docker/php/Dockerfile
   volumes:
     - .:/var/www/html
-  # Credenciais fixas abaixo são válidas apenas para este ambiente 100% local
-  # (nunca usado em deploy real) — não reaproveitar em outro compose file.
+  # DB_*/AWS_*/REVERB_* vêm do .env do próprio Laravel (single source of
+  # verdade com os containers postgres/minio abaixo) — os valores aqui só têm
+  # fallback (":-") para quando o dev ainda não tem um .env local.
+  # DB_HOST/PORT, REDIS_HOST/PORT e AWS_ENDPOINT ficam fixos: são nomes/portas
+  # internos da rede do compose, não fazem sentido fora dela.
   environment:
     APP_ENV: local
     APP_DEBUG: "true"
-    APP_URL: http://localhost:8000
+    APP_URL: "http://localhost:${APP_PORT:-8000}"
     DB_CONNECTION: pgsql
     DB_HOST: postgres
     DB_PORT: 5432
-    DB_DATABASE: chatservice
-    DB_USERNAME: chatservice
-    DB_PASSWORD: chatservice
+    DB_DATABASE: ${DB_DATABASE:-chatservice}
+    DB_USERNAME: ${DB_USERNAME:-chatservice}
+    DB_PASSWORD: ${DB_PASSWORD:-chatservice}
     CACHE_STORE: redis
     SESSION_DRIVER: redis
     QUEUE_CONNECTION: redis
     REDIS_HOST: redis
     REDIS_PORT: 6379
     FILESYSTEM_DISK: s3
-    AWS_ACCESS_KEY_ID: chatservice
-    AWS_SECRET_ACCESS_KEY: chatservice123
-    AWS_DEFAULT_REGION: us-east-1
-    AWS_BUCKET: chatservice
+    AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-chatservice}
+    AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-chatservice123}
+    AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+    AWS_BUCKET: ${AWS_BUCKET:-chatservice}
     AWS_ENDPOINT: http://minio:9000
     AWS_USE_PATH_STYLE_ENDPOINT: "true"
     BROADCAST_CONNECTION: reverb
@@ -53,7 +56,7 @@ services:
     image: nginx:alpine
     container_name: chatservice-nginx
     ports:
-      - "8000:80"
+      - "${APP_PORT:-8000}:80"
     volumes:
       - .:/var/www/html:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
@@ -86,7 +89,7 @@ services:
     container_name: chatservice-reverb
     command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
     ports:
-      - "8081:8080"
+      - "${REVERB_PORT:-8081}:8080"
     depends_on:
       app:
         condition: service_healthy
@@ -101,14 +104,14 @@ services:
     image: pgvector/pgvector:pg16
     container_name: chatservice-postgres
     environment:
-      POSTGRES_DB: chatservice
-      POSTGRES_USER: chatservice
-      POSTGRES_PASSWORD: chatservice
+      POSTGRES_DB: ${DB_DATABASE:-chatservice}
+      POSTGRES_USER: ${DB_USERNAME:-chatservice}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatservice}
     volumes:
       - chatservice-postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chatservice -d chatservice"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-chatservice} -d ${DB_DATABASE:-chatservice}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -129,11 +132,11 @@ services:
     container_name: chatservice-minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: chatservice
-      MINIO_ROOT_PASSWORD: chatservice123
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-chatservice}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-chatservice123}
     ports:
-      - "9002:9000"
-      - "9091:9001"
+      - "${FORWARD_MINIO_PORT:-9002}:9000"
+      - "${FORWARD_MINIO_CONSOLE_PORT:-9091}:9001"
     volumes:
       - chatservice-minio-data:/data
     healthcheck:
