@@ -29,6 +29,57 @@ In addition, [Laracasts](https://laracasts.com) contains thousands of video tuto
 
 You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
+## Local environment (Docker)
+
+This project ships a Docker Compose setup for local development — no manual service installation required.
+
+**Services:** `nginx` (web server, port `8000`), `app` (PHP-FPM 8.5), `worker` (Horizon queue worker), `reverb` (WebSocket server, port `8081`), `postgres` (with `pgvector`), `redis`, `minio` (S3-compatible storage, API on port `9002`, console on port `9091`).
+
+### First-time setup
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+That's it. On first boot the `app` container will:
+
+1. Install Composer dependencies if `vendor/` is missing.
+2. Generate `APP_KEY` if it's not already set.
+3. Run pending migrations.
+
+Once every container reports healthy, the app is available at http://localhost:8000 (health check: http://localhost:8000/up), the Reverb WebSocket server at `localhost:8081`, and the MinIO console at http://localhost:9091.
+
+### Everyday use
+
+```bash
+docker compose up -d       # start everything in the background
+docker compose logs -f app # tail a service's logs
+docker compose exec app php artisan migrate   # run artisan commands inside the app container
+docker compose down        # stop everything (add -v to also wipe volumes/data)
+```
+
+Database, Redis, and MinIO data persist across restarts in named Docker volumes.
+
+### Configuration (ports, users, passwords)
+
+`docker-compose.yml` reads its ports and credentials from the same `.env` file used by Laravel — there's no separate Docker-only env file. Everything has a sane default, so `.env` values are optional overrides:
+
+| Variable | Used for | Default |
+|---|---|---|
+| `APP_PORT` | Host port for `nginx` (the app itself) | `8000` |
+| `REVERB_PORT` | Host port for the Reverb WebSocket server | `8081` |
+| `FORWARD_MINIO_PORT` | Host port for the MinIO S3 API | `9002` |
+| `FORWARD_MINIO_CONSOLE_PORT` | Host port for the MinIO web console | `9091` |
+| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Postgres database/user/password (also used by the `app` container to connect) | `chatservice` / `chatservice` / `chatservice` |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | MinIO root user/password (also used by the `app` container to connect) | `chatservice` / `chatservice123` |
+
+Change any of these in `.env` and re-run `docker compose up -d --build` (or `make up`) — no edits to `docker-compose.yml` needed. Useful if one of the default ports conflicts with something else already running on your machine.
+
+### Makefile shortcuts
+
+A `Makefile` wraps the commands above so you don't have to type `docker compose` for everyday tasks. Run `make help` for the full list — highlights: `make up`, `make down`, `make down-v`, `make exec-app` (shell into the app container), `make artisan cmd="..."`, `make migrate`, `make seed`, `make fresh` (migrate:fresh + seed), `make test`, `make pint`.
+
 ## Agentic Development
 
 Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:

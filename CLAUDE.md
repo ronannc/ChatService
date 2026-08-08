@@ -1,3 +1,46 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project state
+
+This is a **fresh, unmodified Laravel 13 skeleton** (`laravel/laravel`) — despite the repo name "ChatService", no chat/domain-specific code has been written yet. `app/` only contains the default `Controller`, `User` model, and `AppServiceProvider`. Routes are the stock welcome page and the `inspire` Artisan command. There are no custom migrations, controllers, or feature code beyond what `laravel new` generates.
+
+When you start building real functionality, keep this section updated with the actual architecture (domains, key models/services, queue jobs, external integrations) so future instances don't have to rediscover it from scratch.
+
+## Local environment
+
+The project's real local environment is **Docker Compose** (added in CHAT-002), not the bare Laravel skeleton flow — `.env.example` points `DB_HOST`/`REDIS_HOST` at the `postgres`/`redis` container hostnames, so `composer run dev`/`php artisan serve` run bare on the host **will not connect to anything**. Always use Docker.
+
+```bash
+cp .env.example .env      # first time only
+make up                   # or: docker compose up -d --build
+```
+
+`make help` lists every shortcut. Common ones:
+
+```bash
+make artisan cmd="route:list"   # run any artisan command inside the app container
+make migrate                    # php artisan migrate
+make seed                       # php artisan db:seed
+make fresh                      # migrate:fresh --seed
+make test                       # php artisan test --compact
+make pint                       # vendor/bin/pint
+make exec-app                   # shell into the app container
+make down / make down-v         # stop (add -v to also wipe DB/Redis/MinIO volumes)
+```
+
+Ports and credentials (Postgres user/password, MinIO keys, exposed ports) are configurable via `.env` — see the "Configuration" table in [README.md](README.md). Services: `nginx` (`APP_PORT`, default 8000), `app` (PHP-FPM 8.5), `worker` (Horizon), `reverb` (WebSocket, `REVERB_PORT`, default 8081), `postgres` (with `pgvector`), `redis`, `minio` (S3-compatible, `FORWARD_MINIO_PORT`/`FORWARD_MINIO_CONSOLE_PORT`).
+
+If you need to run something directly on the host anyway (e.g. `vendor/bin/pint`, which doesn't touch the database), that still works fine — it's only DB/Redis/broadcasting-dependent commands that require the containers.
+
+## Tooling
+
+- **Laravel Boost** (MCP server) is installed — see the guidelines block below for its tools (`database-query`, `database-schema`, `search-docs`, etc.) and prefer them over raw shell/file access when applicable.
+- **Pest** is the test framework (not PHPUnit syntax), with the Laravel plugin.
+- **Tailwind CSS v4** + Vite for frontend styling/bundling.
+- No `.ai/rules` directory exists yet — once project-specific conventions are established, the `infer-conventions` skill can populate it.
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
