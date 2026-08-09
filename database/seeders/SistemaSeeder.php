@@ -22,5 +22,16 @@ class SistemaSeeder extends Seeder
                 'status' => StatusSistema::Ativo,
             ],
         );
+
+        // Segundo sistema fictício — usado só pra testar isolamento
+        // (CHAT-003/CHAT-005A), sem integração real nenhuma.
+        Sistema::query()->firstOrCreate(
+            ['codigo' => 'sistema-ficticio'],
+            [
+                'nome' => 'Sistema Fictício',
+                'jwks_url' => 'https://sistema-ficticio.example.com/.well-known/jwks.json',
+                'status' => StatusSistema::Ativo,
+            ],
+        );
     }
 }

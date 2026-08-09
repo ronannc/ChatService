@@ -2,23 +2,54 @@
 
 namespace App\Models;
 
+use App\Enums\StatusAtendente;
 use App\Models\Concerns\BelongsToSistema;
 use Database\Factories\AtendenteFactory;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Sanctum\HasApiTokens;
 
-class Atendente extends Model
+class Atendente extends Model implements AuthenticatableContract
 {
     /** @use HasFactory<AtendenteFactory> */
-    use BelongsToSistema, HasFactory;
+    use Authenticatable, BelongsToSistema, HasApiTokens, HasFactory;
 
     /**
      * @var array<int, string>
      */
     protected $fillable = [
         'sistema_id',
+        'nome',
+        'email',
+        'senha',
+        'status',
     ];
+
+    /**
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'senha',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'senha' => 'hashed',
+            'status' => StatusAtendente::class,
+        ];
+    }
+
+    public function getAuthPassword(): string
+    {
+        return $this->senha;
+    }
 
     public function sistemasComPermissao(): HasMany
     {
