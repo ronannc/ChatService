@@ -1,0 +1,171 @@
+name: Enviar métricas para 4TechLead
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+  statuses: read
+
+jobs:
+  send-pr-metrics:
+    name: Enviar dados do PR mergeado
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+
+    env:
+      FOR_TECH_LEAD_API: ${{ secrets.FOR_TECH_LEAD_API }}
+      FOR_TECH_LEAD_TOKEN: ${{ secrets.FOR_TECH_LEAD_TOKEN }}
+      FOR_TECH_LEAD_ACTOR_MAP: ${{ secrets.FOR_TECH_LEAD_ACTOR_MAP || vars.FOR_TECH_LEAD_ACTOR_MAP }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Validar configuração
+        run: |
+          test -n "$FOR_TECH_LEAD_API"
+          test -n "$FOR_TECH_LEAD_TOKEN"
+
+      - name: Analisar PR e enviar webhook
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+          const pr = event.pull_request;
+          const repo = event.repository.full_name;
+          const apiBase = process.env.FOR_TECH_LEAD_API.replace(/\/+$/, '');
+          const integrationToken = process.env.FOR_TECH_LEAD_TOKEN;
+          const githubToken = process.env.GH_TOKEN;
+          const headSha = pr.head.sha;
+
+          async function github(path) {
+            const response = await fetch(`https://api.github.com${path}`, {
+              headers: {
+                accept: 'application/vnd.github+json',
+                authorization: `Bearer ${githubToken}`,
+                'x-github-api-version': '2022-11-28',
+              },
+            });
+
+            if (!response.ok) {
+              console.warn(`GitHub API ${path} returned ${response.status}`);
+              return null;
+            }
+
+            return response.json();
+          }
+
+          function taskRefs() {
+            const text = [
+              pr.title,
+              pr.body ?? '',
+              pr.head.ref,
+              pr.base.ref,
+            ].join('\n');
+            const jiraLike = text.match(/\b[A-Z][A-Z0-9]+-\d+\b/g) ?? [];
+            const githubIssues = [...text.matchAll(/(?:^|\s)#(\d+)\b/g)].map((match) => `#${match[1]}`);
+            return [...new Set([...jiraLike, ...githubIssues])];
+          }
+
+          function storyPoints() {
+            for (const label of pr.labels ?? []) {
+              const name = label.name ?? '';
+              const match = name.match(/\b(?:story\s*)?points?\s*[:/-]?\s*(\d+(?:\.\d+)?)\b/i)
+                ?? name.match(/\bsp\s*[:/-]?\s*(\d+(?:\.\d+)?)\b/i)
+                ?? name.match(/\bsize\s*[:/-]\s*(\d+(?:\.\d+)?)\b/i);
+
+              if (match) {
+                return Number(match[1]);
+              }
+            }
+
+            return 0;
+          }
+
+          function externalActorCode() {
+            if (!process.env.FOR_TECH_LEAD_ACTOR_MAP) {
+              return pr.user.login;
+            }
+
+            const actorMap = JSON.parse(process.env.FOR_TECH_LEAD_ACTOR_MAP);
+            return actorMap[pr.user.login] ?? pr.user.login;
+          }
+
+          const [reviews, checks, combinedStatus] = await Promise.all([
+            github(`/repos/${repo}/pulls/${pr.number}/reviews?per_page=100`),
+            github(`/repos/${repo}/commits/${headSha}/check-runs?per_page=100`),
+            github(`/repos/${repo}/commits/${headSha}/status`),
+          ]);
+
+          const reworkCount = Array.isArray(reviews)
+            ? reviews.filter((review) => review.state === 'CHANGES_REQUESTED').length
+            : 0;
+          const failedChecks = Array.isArray(checks?.check_runs)
+            ? checks.check_runs.filter((check) => [
+              'action_required',
+              'cancelled',
+              'failure',
+              'startup_failure',
+              'timed_out',
+            ].includes(check.conclusion)).length
+            : 0;
+          const failedStatuses = Array.isArray(combinedStatus?.statuses)
+            ? combinedStatus.statuses.filter((status) => ['error', 'failure'].includes(status.state)).length
+            : 0;
+          const ciFailures = failedChecks + failedStatuses;
+
+          const payload = {
+            event_id: `github:${repo}:pull_request:${pr.number}:merged`,
+            event_type: 'pull_request_merged',
+            external_actor_code: externalActorCode(),
+            occurred_at: pr.merged_at,
+            source_ref: `${repo}#${pr.number}`,
+            payload: {
+              repository: {
+                id: event.repository.id,
+                name: event.repository.name,
+                full_name: repo,
+                html_url: event.repository.html_url,
+              },
+              task_refs: taskRefs(),
+              pull_request: {
+                number: pr.number,
+                title: pr.title,
+                url: pr.html_url,
+                author: pr.user.login,
+                merged_by: pr.merged_by?.login ?? null,
+                review_comments_count: pr.review_comments ?? 0,
+                comments_count: pr.comments ?? 0,
+                ci_failures_count: ciFailures,
+                rework_count: reworkCount,
+                story_points: storyPoints(),
+                changed_files: pr.changed_files ?? 0,
+                additions: pr.additions ?? 0,
+                deletions: pr.deletions ?? 0,
+                merged_at: pr.merged_at,
+                task_refs: taskRefs(),
+              },
+            },
+          };
+
+          const response = await fetch(`${apiBase}/api/v1/integration-webhooks`, {
+            method: 'POST',
+            headers: {
+              authorization: `Bearer ${integrationToken}`,
+              'content-type': 'application/json',
+              accept: 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const body = await response.text();
+          if (!response.ok) {
+            console.error(body);
+            process.exit(1);
+          }
+
+          console.log(body);
+          NODE
