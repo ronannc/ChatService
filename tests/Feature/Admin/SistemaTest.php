@@ -4,8 +4,15 @@ use App\Enums\StatusSistema;
 use App\Models\Sistema;
 use Database\Seeders\SistemaSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
+
+// O cache aqui é Redis real (não in-memory), então o throttle:30,1 do grupo
+// admin persiste entre testes — sem isso, os testes deste arquivo somados
+// aos de outras suítes (RefreshDatabase não limpa o cache) acabam batendo
+// no limite e falhando com 429 em vez do status esperado.
+beforeEach(fn () => Cache::flush());
 
 test('cria um sistema com api key válida', function () {
     $response = $this->postJson('/api/admin/sistemas', [

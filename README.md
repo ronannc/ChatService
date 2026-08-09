@@ -71,7 +71,8 @@ Database, Redis, and MinIO data persist across restarts in named Docker volumes.
 | `REVERB_PORT` | Host port for the Reverb WebSocket server | `8081` |
 | `FORWARD_MINIO_PORT` | Host port for the MinIO S3 API | `9002` |
 | `FORWARD_MINIO_CONSOLE_PORT` | Host port for the MinIO web console | `9091` |
-| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Postgres database/user/password (also used by the `app` container to connect) | `chatservice` / `chatservice` / `chatservice` |
+| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Postgres database/user/password (also used by the `app` container to connect). Must be a non-superuser role — Row Level Security ignores superusers. | `chatservice` / `chatservice_app` / `chatservice_app` |
+| `DB_ROOT_USERNAME` / `DB_ROOT_PASSWORD` | Bootstrap superuser for the `postgres` container's initdb (Docker always makes this role a superuser). Never used by the app — only creates `DB_USERNAME` on first init. | `chatservice_root` / `chatservice_root` |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | MinIO root user/password (also used by the `app` container to connect) | `chatservice` / `chatservice123` |
 
 Change any of these in `.env` and re-run `docker compose up -d --build` (or `make up`) — no edits to `docker-compose.yml` needed. Useful if one of the default ports conflicts with something else already running on your machine.

@@ -17,8 +17,8 @@ x-app-image: &app-image
     DB_HOST: postgres
     DB_PORT: 5432
     DB_DATABASE: ${DB_DATABASE:-chatservice}
-    DB_USERNAME: ${DB_USERNAME:-chatservice}
-    DB_PASSWORD: ${DB_PASSWORD:-chatservice}
+    DB_USERNAME: ${DB_USERNAME:-chatservice_app}
+    DB_PASSWORD: ${DB_PASSWORD:-chatservice_app}
     CACHE_STORE: redis
     SESSION_DRIVER: redis
     QUEUE_CONNECTION: redis
@@ -104,14 +104,21 @@ services:
     image: pgvector/pgvector:pg16
     container_name: chatservice-postgres
     environment:
+      # POSTGRES_USER só existe para o bootstrap inicial do container — o
+      # Docker sempre torna esse usuário superuser, então ele nunca é usado
+      # pela aplicação (superuser ignora Row Level Security). init.sh usa
+      # esse bootstrap para criar o role não-superuser DB_USERNAME/DB_PASSWORD,
+      # que é o que a app (Laravel) de fato usa para conectar.
       POSTGRES_DB: ${DB_DATABASE:-chatservice}
-      POSTGRES_USER: ${DB_USERNAME:-chatservice}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatservice}
+      POSTGRES_USER: ${DB_ROOT_USERNAME:-chatservice_root}
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD:-chatservice_root}
+      DB_USERNAME: ${DB_USERNAME:-chatservice_app}
+      DB_PASSWORD: ${DB_PASSWORD:-chatservice_app}
     volumes:
       - chatservice-postgres-data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./docker/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-chatservice} -d ${DB_DATABASE:-chatservice}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-chatservice_app} -d ${DB_DATABASE:-chatservice}"]
       interval: 5s
       timeout: 5s
       retries: 10
