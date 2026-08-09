@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\SistemaContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -52,4 +53,9 @@ function something()
 function adminHeaders(): array
 {
     return ['X-Admin-Api-Key' => config('chat.admin_api_key')];
+}
+
+function sistemaContext(): SistemaContext
+{
+    return app(SistemaContext::class);
 }

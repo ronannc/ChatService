@@ -32,6 +32,8 @@ make down / make down-v         # stop (add -v to also wipe DB/Redis/MinIO volum
 
 Ports and credentials (Postgres user/password, MinIO keys, exposed ports) are configurable via `.env` — see the "Configuration" table in [README.md](README.md). Services: `nginx` (`APP_PORT`, default 8000), `app` (PHP-FPM 8.5), `worker` (Horizon), `reverb` (WebSocket, `REVERB_PORT`, default 8081), `postgres` (with `pgvector`), `redis`, `minio` (S3-compatible, `FORWARD_MINIO_PORT`/`FORWARD_MINIO_CONSOLE_PORT`).
 
+**If you already had this environment running before CHAT-003:** the Postgres role the app connects with changed from the superuser `chatservice` to a new non-superuser role (`chatservice_app`/`DB_USERNAME`) — required for Row Level Security to have any effect (superusers always bypass RLS). That role is only created on a fresh `postgres` data volume, so run `make down-v && make up && make migrate && make seed` once to pick it up.
+
 If you need to run something directly on the host anyway (e.g. `vendor/bin/pint`, which doesn't touch the database), that still works fine — it's only DB/Redis/broadcasting-dependent commands that require the containers.
 
 ## Tooling
