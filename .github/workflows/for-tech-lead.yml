@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FOR_TECH_LEAD_API: ${{ secrets.FOR_TECH_LEAD_API }}
+      FOR_TECH_LEAD_API: ${{ vars.FOR_TECH_LEAD_API }}
       FOR_TECH_LEAD_TOKEN: ${{ secrets.FOR_TECH_LEAD_TOKEN }}
-      FOR_TECH_LEAD_ACTOR_MAP: ${{ secrets.FOR_TECH_LEAD_ACTOR_MAP || vars.FOR_TECH_LEAD_ACTOR_MAP }}
+      FOR_TECH_LEAD_ACTOR_MAP: ${{ vars.FOR_TECH_LEAD_ACTOR_MAP }}
       GH_TOKEN: ${{ github.token }}
 
     steps:
