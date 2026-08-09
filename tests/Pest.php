@@ -1,7 +1,10 @@
 <?php
 
+use App\Models\Atendente;
+use App\Models\Sistema;
 use App\Support\SistemaContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /*
@@ -58,4 +61,15 @@ function adminHeaders(): array
 function sistemaContext(): SistemaContext
 {
     return app(SistemaContext::class);
+}
+
+function criarAtendente(array $overrides = []): Atendente
+{
+    $sistema = Sistema::factory()->create();
+    sistemaContext()->set($sistema->codigo);
+
+    return Atendente::factory()->create(array_merge([
+        'sistema_id' => $sistema->codigo,
+        'senha' => Hash::make('password'),
+    ], $overrides));
 }
