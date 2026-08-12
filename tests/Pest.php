@@ -3,8 +3,10 @@
 use App\Models\Atendente;
 use App\Models\Sistema;
 use App\Support\SistemaContext;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /*
@@ -72,4 +74,33 @@ function criarAtendente(array $overrides = []): Atendente
         'sistema_id' => $sistema->codigo,
         'senha' => Hash::make('password'),
     ], $overrides));
+}
+
+/**
+ * Cria só a tabela `sistemas` (sem o restante das migrations, que dependem
+ * de DDL exclusivo do Postgres — RLS via `ENABLE ROW LEVEL SECURITY` e
+ * `ALTER TABLE ... ADD CONSTRAINT ... CHECK`, ambos incompatíveis com o
+ * sqlite `:memory:` usado fora do container Docker).
+ *
+ * Os testes de CHAT-005 (validação do token do cliente) só precisam de
+ * `sistemas` — nenhum deles toca `chamados`/`mensagens`/`atendentes`, que são
+ * as tabelas isoladas por RLS — então rodam contra esse esquema mínimo em
+ * vez de exigir `RefreshDatabase` (que roda todas as migrations e falha
+ * fora do Docker/Postgres). `make test` continua sendo a forma de rodar a
+ * suíte inteira contra Postgres real.
+ */
+function prepararTabelaSistemasParaTeste(): void
+{
+    if (! Schema::hasTable('sistemas')) {
+        Schema::create('sistemas', function (Blueprint $table) {
+            $table->id();
+            $table->string('codigo')->unique();
+            $table->string('nome');
+            $table->string('jwks_url');
+            $table->string('status')->default('ativo');
+            $table->timestamps();
+        });
+    }
+
+    Sistema::query()->delete();
 }
