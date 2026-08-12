@@ -1,0 +1,12 @@
+{
+    "keys": [
+        {
+            "kty": "RSA",
+            "use": "sig",
+            "alg": "RS256",
+            "kid": "chat-service-teste-chave-fraca",
+            "n": "v7F8S8EVLfn7gRWrRf8O2yXXv3zxXVZhWGbQ1LRtMp8354DwXqc5UcEGAaXdPmqpJvR2zsro9l19FxxiBduZe6lrqwVungu3XQLLy0YkobIINRq0MLbL6sAyts5kLH5dg7_xARCRC_fTkO3W1MoEkhvKKH7n9irw4qq9jeEUCv0",
+            "e": "AQAB"
+        }
+    ]
+}
