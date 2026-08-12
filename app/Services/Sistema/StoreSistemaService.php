@@ -4,6 +4,7 @@ namespace App\Services\Sistema;
 
 use App\Enums\StatusSistema;
 use App\Models\Sistema;
+use App\Support\CacheSistema;
 
 class StoreSistemaService
 {
@@ -12,9 +13,15 @@ class StoreSistemaService
      */
     public function handle(array $dados): Sistema
     {
-        return Sistema::create([
+        $sistema = Sistema::create([
             ...$dados,
             'status' => $dados['status'] ?? StatusSistema::Ativo->value,
         ]);
+
+        // Invalidação explícita (não TTL) do cache de cadastro lido pela
+        // validação do token do cliente — ver App\Support\CacheSistema.
+        CacheSistema::esquecer($sistema->codigo);
+
+        return $sistema;
     }
 }
