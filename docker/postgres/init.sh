@@ -11,6 +11,10 @@ set -e
 # no corpo — DB_USERNAME/DB_PASSWORD chegam ao SQL só via variável do próprio
 # psql (-v), e dentro do bloco DO são aplicados com format(%I/%L), que faz o
 # escaping correto. Evita interpolar credenciais direto num literal SQL/shell.
+#
+# As variáveis são resolvidas ANTES do bloco DO: o psql não substitui :'var'
+# dentro de dollar-quoting ($$ ... $$), então set_config/current_setting é o
+# caminho para levá-las ao corpo do bloco.
 psql -v ON_ERROR_STOP=1 \
     --username "$POSTGRES_USER" \
     --dbname "$POSTGRES_DB" \
@@ -18,10 +22,13 @@ psql -v ON_ERROR_STOP=1 \
     -v app_password="$DB_PASSWORD" <<-'EOSQL'
     CREATE EXTENSION IF NOT EXISTS vector;
 
+    SELECT set_config('bootstrap.app_username', :'app_username', false);
+    SELECT set_config('bootstrap.app_password', :'app_password', false);
+
     DO $$
     DECLARE
-        app_username text := :'app_username';
-        app_password text := :'app_password';
+        app_username text := current_setting('bootstrap.app_username');
+        app_password text := current_setting('bootstrap.app_password');
     BEGIN
         IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = app_username) THEN
             EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L NOSUPERUSER', app_username, app_password);
