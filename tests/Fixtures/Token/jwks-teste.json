@@ -1,0 +1,12 @@
+{
+    "keys": [
+        {
+            "kty": "RSA",
+            "use": "sig",
+            "alg": "RS256",
+            "kid": "chat-service-teste-2026",
+            "n": "1eEPHbwR7ZJUtxeosPl1WXVwd84nx4U4Spyxyy_LlU7zuqOIBpzFnC76Getm-Bwm52JCKOpnslInhMDCr-XcbW9-PZU9eu_LLNdqS3ccekpj0QYzGczFUERRq-utAm5FOxLw-BkdhWqJ5KPcs-q_XAeu2PTSRlAqBPWJdOUouooIj1yPRB3tdioUPP9F7_oBrME6BnuIy2iw35TNFT84y4kKNMsnsRe7logIxxq47TLgy_I6VZR2wL9oe4LxGP2WERBh0PSZMs6ho0SNeGpYHhHYoVJTkcijGW118UR61jWN1vZLJGjL4dxLrF-4oED5HQu1cBsCcIgKpeuPUOisow",
+            "e": "AQAB"
+        }
+    ]
+}
