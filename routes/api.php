@@ -30,7 +30,17 @@ Route::middleware(['atendente.auth-bypass', 'auth:sanctum', 'atendente.context']
  * (ver routes/channels.php e a opção `guards` do canal). Sem o bypass
  * ativo nesse momento, o Sanctum não conseguiria ler a linha do atendente
  * (RLS de `atendentes` bloquearia antes de qualquer sistema_id existir no
- * contexto).
+ * contexto). Esse bypass é escopado à leitura da própria linha do atendente
+ * (`SistemaScope`, só pro model `Atendente`, ver GUC_BYPASS_RESOLUCAO_ATENDENTE)
+ * — ele não amplia, em nenhum momento, o acesso a `chamados`/`mensagens`:
+ * quem decide quais chamados o atendente enxerga é a policy de RLS separada
+ * `chamados_sistemas_permitidos_atendente`, controlada pelo GUC abaixo.
+ *
+ * `broadcasting.limpar-sistemas-permitidos` garante que o GUC
+ * `app.sistemas_permitidos_atendente` (setado por
+ * `AutorizarCanalChamadoService` quando quem autoriza é um atendente) não
+ * sobrevive além desta request — ver
+ * `LimparSistemasPermitidosAtendenteAoFinalizar`.
  */
 Route::post('broadcasting/auth', [BroadcastController::class, 'authenticate'])
-    ->middleware(['atendente.auth-bypass', 'throttle:60,1']);
+    ->middleware(['atendente.auth-bypass', 'broadcasting.limpar-sistemas-permitidos', 'throttle:60,1']);

@@ -11,6 +11,7 @@ use App\Support\GuardaHostSeguro;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\GeradorTokenTeste;
 
@@ -163,4 +164,108 @@ test('bearer token que não é nem sanctum válido nem jwt de cliente válido é
 
     autorizarCanalDoChamado($chamado, 'token-que-nao-existe-em-lugar-nenhum')
         ->assertForbidden();
+});
+
+test('token de cliente expirado é rejeitado, mesmo sendo estruturalmente válido pro sistema/sub certos', function () {
+    // Réplica de GeradorTokenTeste::expirado() com `iss` do sistema deste
+    // teste (não o SISTEMA_CODIGO fixo do gerador) — este arquivo usa
+    // RefreshDatabase por teste e evita esse código fixo de propósito (ver
+    // docblock do arquivo).
+    $agora = time();
+    $token = GeradorTokenTeste::valido([
+        'iss' => $this->sistemaCliente->codigo,
+        'iat' => $agora - 700,
+        'exp' => $agora - 100,
+    ]);
+
+    sistemaContext()->set($this->sistemaCliente->codigo);
+    $chamado = Chamado::factory()
+        ->comClienteRef(GeradorTokenTeste::SUB)
+        ->create(['sistema_id' => $this->sistemaCliente->codigo]);
+
+    autorizarCanalDoChamado($chamado, $token)->assertForbidden();
+});
+
+test('cliente não é autorizado quando o chamado não tem cliente_ref (nunca bate com o sub do token)', function () {
+    $token = GeradorTokenTeste::valido(['iss' => $this->sistemaCliente->codigo]);
+
+    sistemaContext()->set($this->sistemaCliente->codigo);
+    // Sem ->comClienteRef(): cliente_ref fica null (factory default) — chamado
+    // aberto sem vínculo de cliente ainda (ex.: criado só pelo atendente).
+    $chamado = Chamado::factory()->create(['sistema_id' => $this->sistemaCliente->codigo]);
+
+    autorizarCanalDoChamado($chamado, $token)->assertForbidden();
+});
+
+test('cliente é rejeitado ao tentar assinar o canal de um chamado inexistente', function () {
+    $token = GeradorTokenTeste::valido(['iss' => $this->sistemaCliente->codigo]);
+
+    sistemaContext()->set($this->sistemaCliente->codigo);
+
+    $chamadoInexistente = Chamado::factory()
+        ->comClienteRef(GeradorTokenTeste::SUB)
+        ->create(['sistema_id' => $this->sistemaCliente->codigo]);
+    $idInexistente = $chamadoInexistente->id;
+    $chamadoInexistente->delete();
+
+    test()->postJson('/api/broadcasting/auth', [
+        'channel_name' => "private-chamado.{$idInexistente}",
+        'socket_id' => '1234.5678',
+    ], ['Authorization' => "Bearer {$token}"])->assertForbidden();
+});
+
+test('atendente é rejeitado ao tentar assinar o canal de um chamado inexistente', function () {
+    $atendente = criarAtendente(['email' => 'ana@chatservice.test']);
+    $sistemaPermitido = Sistema::factory()->create();
+
+    AtendenteSistema::factory()->create([
+        'atendente_id' => $atendente->id,
+        'sistema_id' => $sistemaPermitido->codigo,
+    ]);
+
+    $token = $this->postJson('/api/atendentes/login', [
+        'email' => 'ana@chatservice.test',
+        'senha' => 'password',
+    ])->json('token');
+
+    sistemaContext()->set($sistemaPermitido->codigo);
+    $chamado = Chamado::factory()->create(['sistema_id' => $sistemaPermitido->codigo]);
+    $idInexistente = $chamado->id;
+    $chamado->delete();
+
+    test()->postJson('/api/broadcasting/auth', [
+        'channel_name' => "private-chamado.{$idInexistente}",
+        'socket_id' => '1234.5678',
+    ], ['Authorization' => "Bearer {$token}"])->assertForbidden();
+});
+
+test('GUC de sistemas permitidos do atendente não vaza pra consultas seguintes na mesma conexão após autorizar o canal', function () {
+    $atendente = criarAtendente(['email' => 'ana@chatservice.test']);
+    $sistemaPermitido = Sistema::factory()->create();
+
+    AtendenteSistema::factory()->create([
+        'atendente_id' => $atendente->id,
+        'sistema_id' => $sistemaPermitido->codigo,
+    ]);
+
+    $token = $this->postJson('/api/atendentes/login', [
+        'email' => 'ana@chatservice.test',
+        'senha' => 'password',
+    ])->json('token');
+
+    sistemaContext()->set($sistemaPermitido->codigo);
+    $chamado = Chamado::factory()->create(['sistema_id' => $sistemaPermitido->codigo]);
+
+    autorizarCanalDoChamado($chamado, $token)->assertOk();
+
+    $guc = DB::selectOne(
+        "select current_setting('app.sistemas_permitidos_atendente', true) as v"
+    )->v;
+
+    expect($guc)
+        ->toBeEmpty(); // Nada limpa este GUC hoje (só os testes chamam limparSistemasPermitidosAtendente()) —
+    // numa conexão reaproveitada entre requests (ex.: worker/Octane/pool), a
+    // lista de sistemas permitidos do atendente da última autorização de
+    // canal continuaria ativa pra qualquer query seguinte que caia nessa
+    // mesma conexão, ampliando a visibilidade de RLS além do previsto.
 });
