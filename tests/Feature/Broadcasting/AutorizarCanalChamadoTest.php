@@ -263,9 +263,11 @@ test('GUC de sistemas permitidos do atendente não vaza pra consultas seguintes 
     )->v;
 
     expect($guc)
-        ->toBeEmpty(); // Nada limpa este GUC hoje (só os testes chamam limparSistemasPermitidosAtendente()) —
-    // numa conexão reaproveitada entre requests (ex.: worker/Octane/pool), a
-    // lista de sistemas permitidos do atendente da última autorização de
-    // canal continuaria ativa pra qualquer query seguinte que caia nessa
-    // mesma conexão, ampliando a visibilidade de RLS além do previsto.
+        ->toBeEmpty(); // Garantido por LimparSistemasPermitidosAtendenteAoFinalizar::terminate()
+    // (routes/api.php, middleware `broadcasting.limpar-sistemas-permitidos`):
+    // sem essa limpeza, numa conexão reaproveitada entre requests (ex.:
+    // worker/Octane/pool), a lista de sistemas permitidos do atendente da
+    // última autorização de canal continuaria ativa pra qualquer query
+    // seguinte que caia nessa mesma conexão, ampliando a visibilidade de RLS
+    // além do previsto — é exatamente esse vazamento que este teste cobre.
 });
