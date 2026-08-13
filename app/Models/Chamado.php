@@ -20,6 +20,7 @@ class Chamado extends Model
      */
     protected $fillable = [
         'sistema_id',
+        'cliente_ref',
         'status',
         'encerrado_por',
     ];

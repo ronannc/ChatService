@@ -1,12 +1,14 @@
 <?php
 
 use App\Models\Atendente;
+use App\Models\Chamado;
 use App\Models\Sistema;
 use App\Support\SistemaContext;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /*
@@ -74,6 +76,19 @@ function criarAtendente(array $overrides = []): Atendente
         'sistema_id' => $sistema->codigo,
         'senha' => Hash::make('password'),
     ], $overrides));
+}
+
+/**
+ * POST em /api/broadcasting/auth (CHAT-006) no formato que o cliente Echo
+ * envia (`channel_name`/`socket_id`), com Bearer opcional. `$bearer` é `null`
+ * para exercitar o caso sem nenhuma autenticação.
+ */
+function autorizarCanalDoChamado(Chamado $chamado, ?string $bearer): TestResponse
+{
+    return test()->postJson('/api/broadcasting/auth', [
+        'channel_name' => "private-chamado.{$chamado->id}",
+        'socket_id' => '1234.5678',
+    ], $bearer ? ['Authorization' => "Bearer {$bearer}"] : []);
 }
 
 /**

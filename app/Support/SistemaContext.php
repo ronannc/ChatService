@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SistemaContext
@@ -78,5 +79,42 @@ class SistemaContext
     public function bypassAtivo(): bool
     {
         return $this->bypassAtivo;
+    }
+
+    /**
+     * Nome do GUC lido pela policy adicional de RLS de `chamados`
+     * (`chamados_sistemas_permitidos_atendente`) — uma policy PERMISSIVA
+     * extra (some por OR com `chamados_isolamento_sistema`), pensada para um
+     * atendente que precisa enxergar chamados de múltiplos sistemas ao mesmo
+     * tempo, não de um único "sistema atual". Diferente de
+     * `GUC_BYPASS_RESOLUCAO_ATENDENTE`, isso não é bypass — é uma lista
+     * explícita de sistemas permitidos, avaliada pela própria policy.
+     */
+    public const GUC_SISTEMAS_PERMITIDOS_ATENDENTE = 'app.sistemas_permitidos_atendente';
+
+    /**
+     * Propaga a lista de sistemas permitidos do atendente autenticado para a
+     * sessão do Postgres, como string separada por vírgula (lida pela policy
+     * via `string_to_array`). Usado hoje pela autorização de canal privado
+     * de broadcasting (CHAT-006); desenhado para ser reaproveitado por
+     * CHAT-010 (fila) e CHAT-021 (histórico consolidado multi-sistema).
+     *
+     * @param  Collection<int, string>|array<int, string>  $codigos
+     */
+    public function definirSistemasPermitidosAtendente(iterable $codigos): void
+    {
+        $lista = collect($codigos)->implode(',');
+
+        DB::statement('SELECT set_config(?, ?, false)', [self::GUC_SISTEMAS_PERMITIDOS_ATENDENTE, $lista]);
+    }
+
+    /**
+     * Limpa a lista de sistemas permitidos do atendente. Simetria com
+     * `definirSistemasPermitidosAtendente()` — evita que a policy continue
+     * enxergando uma lista de uma request anterior.
+     */
+    public function limparSistemasPermitidosAtendente(): void
+    {
+        DB::statement('SELECT set_config(?, ?, false)', [self::GUC_SISTEMAS_PERMITIDOS_ATENDENTE, '']);
     }
 }

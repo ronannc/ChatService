@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnableAtendenteAuthRlsBypass;
 use App\Http\Middleware\EnsureAdminApiKey;
 use App\Http\Middleware\EnsureValidTokenCliente;
+use App\Http\Middleware\LimparSistemasPermitidosAtendenteAoFinalizar;
 use App\Http\Middleware\ResolveAtendenteContext;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'atendente.auth-bypass' => EnableAtendenteAuthRlsBypass::class,
             'atendente.context' => ResolveAtendenteContext::class,
             'cliente.token' => EnsureValidTokenCliente::class,
+            'broadcasting.limpar-sistemas-permitidos' => LimparSistemasPermitidosAtendenteAoFinalizar::class,
         ]);
 
         // Authenticate tem prioridade fixa no framework e rodaria antes de
