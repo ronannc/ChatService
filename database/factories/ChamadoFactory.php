@@ -21,7 +21,18 @@ class ChamadoFactory extends Factory
     {
         return [
             'sistema_id' => fn () => Sistema::factory()->create()->codigo,
+            'cliente_ref' => null,
             'status' => StatusChamado::AguardandoFila,
         ];
+    }
+
+    /**
+     * Estado com `cliente_ref` preenchido — útil pros testes de autorização
+     * de canal (CHAT-006), onde o chamado precisa casar com o `sub` de um
+     * token de cliente.
+     */
+    public function comClienteRef(string $clienteRef): static
+    {
+        return $this->state(fn () => ['cliente_ref' => $clienteRef]);
     }
 }

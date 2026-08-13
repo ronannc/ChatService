@@ -42,6 +42,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Guard fino usado exclusivamente pela autorização de canal privado
+        // de broadcasting (routes/channels.php, opção `guards` do canal).
+        // Não usado por nenhuma outra rota — o cliente final continua sem
+        // guard fora daqui (ver App\Services\Auth\ClienteAutenticadoBroadcast
+        // e App\Providers\AppServiceProvider::boot()).
+        'cliente-broadcast' => [
+            'driver' => 'cliente-broadcast',
+        ],
     ],
 
     /*
