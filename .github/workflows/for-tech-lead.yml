@@ -3,32 +3,6 @@ name: Enviar métricas para 4TechLead
 on:
   pull_request:
     types: [closed]
-  workflow_dispatch:
-    inputs:
-      external_actor_code:
-        description: Identificador da pessoa no 4TechLead
-        required: true
-        type: string
-      title:
-        description: Título para o evento de teste
-        required: false
-        default: Teste manual do GitHub Actions
-        type: string
-      story_points:
-        description: Pontos entregues para o teste
-        required: false
-        default: "0"
-        type: string
-      task_refs:
-        description: Referências separadas por vírgula, exemplo ABC-123,#42
-        required: false
-        default: ""
-        type: string
-      dry_run:
-        description: Montar e exibir o payload sem enviar para a API
-        required: false
-        default: true
-        type: boolean
 
 permissions:
   contents: read
@@ -40,13 +14,6 @@ jobs:
   send-pr-metrics:
     uses: ronannc/4TechLead---backend/.github/workflows/for-tech-lead-central.yml@main
     with:
-      manual_run: ${{ github.event_name == 'workflow_dispatch' }}
-      external_actor_code: ${{ github.event.inputs.external_actor_code || '' }}
-      title: ${{ github.event.inputs.title || 'Teste manual do GitHub Actions' }}
-      story_points: ${{ github.event.inputs.story_points || '0' }}
-      task_refs: ${{ github.event.inputs.task_refs || '' }}
-      dry_run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
       actor_map: ${{ vars.FOR_TECH_LEAD_ACTOR_MAP }}
     secrets:
       FOR_TECH_LEAD_TOKEN: ${{ secrets.FOR_TECH_LEAD_TOKEN }}
-      FOR_TECH_LEAD_ACTOR_MAP: ${{ secrets.FOR_TECH_LEAD_ACTOR_MAP }}
