@@ -44,9 +44,13 @@ final class ContratoTokenCliente
     public const ROLE_CLIENTE = 'cliente';
 
     /**
-     * Reservado para o atendente externo (CHAT-005B). O valor faz parte do
-     * vocabulário, mas **não é aceito**: até CHAT-005B existir, um token com
-     * `role` diferente de `cliente` é rejeitado (ver rolesAceitos()).
+     * Atendente externo (CHAT-005B): mesmo JWT/JWKS do cliente final,
+     * diferenciado por esta claim. Aceita a partir de CHAT-005B, mas o
+     * papel nunca vale pela claim isolada — `ProvisionarAtendenteExternoService`
+     * resolve/cria o atendente a partir do `sub` do token (identidade sem
+     * escopo por `iss`, diferente do cliente final) e o vínculo em
+     * `atendente_sistema` do sistema emissor; a claim só indica qual
+     * verificação fazer.
      */
     public const ROLE_ATENDENTE = 'atendente';
 
@@ -115,14 +119,15 @@ final class ContratoTokenCliente
      * Papéis aceitos hoje. `role` presente com qualquer outro valor rejeita
      * o token: a claim é controlada inteiramente pelo sistema emissor, e
      * aceitar um papel que nenhum fluxo implementa é abrir caminho para
-     * escalação de privilégio. CHAT-005B adiciona `atendente` aqui — e mesmo
-     * lá o papel terá de casar com o vínculo real em `atendente_sistema`,
-     * nunca valendo pela claim isolada.
+     * escalação de privilégio. `atendente` (CHAT-005B) nunca vale pela claim
+     * isolada — `ProvisionarAtendenteExternoService` resolve/cria o
+     * atendente pelo `sub` e o vínculo em `atendente_sistema` a partir do
+     * `iss` do token.
      *
      * @return array<int, string>
      */
     public static function rolesAceitos(): array
     {
-        return [self::ROLE_CLIENTE];
+        return [self::ROLE_CLIENTE, self::ROLE_ATENDENTE];
     }
 }

@@ -192,7 +192,6 @@ test('cada exemplo inválido viola exatamente o motivo que se propõe a violar',
     'aud como array' => ['audComoArray', 'claim_tipo_invalido:aud'],
     'iat no futuro' => ['iatNoFuturo', 'iat_no_futuro'],
     'role fora do vocabulário' => ['roleNaoReconhecida', 'role_nao_aceita'],
-    'role atendente antes de CHAT-005B' => ['rolePapelAtendente', 'role_nao_aceita'],
     'alg none' => ['algNone', 'algoritmo_nao_suportado'],
     'alg HS256 com a chave pública como segredo' => ['algHs256ComChavePublicaComoSegredo', 'algoritmo_nao_suportado'],
     'token com duas partes' => ['comDuasPartes', 'formato_invalido'],
@@ -210,9 +209,10 @@ test('iat no futuro é rejeitado mesmo com exp - iat dentro do teto', function (
         ->and(motivosDeInvalidez(GeradorTokenTeste::iatNoFuturo()))->toBe(['iat_no_futuro']);
 });
 
-test('role cliente é o único papel aceito enquanto CHAT-005B não existe', function () {
-    expect(ContratoTokenCliente::rolesAceitos())->toBe(['cliente'])
-        ->and(motivosDeInvalidez(GeradorTokenTeste::valido(['role' => 'cliente'])))->toBe([]);
+test('cliente e atendente (CHAT-005B) são os únicos papéis aceitos', function () {
+    expect(ContratoTokenCliente::rolesAceitos())->toBe(['cliente', 'atendente'])
+        ->and(motivosDeInvalidez(GeradorTokenTeste::valido(['role' => 'cliente'])))->toBe([])
+        ->and(motivosDeInvalidez(GeradorTokenTeste::papelAtendente()))->toBe([]);
 });
 
 test('o jwt literal publicado no documento confere com a chave versionada', function () {

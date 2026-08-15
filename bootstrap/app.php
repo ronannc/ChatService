@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureAdminApiKey;
 use App\Http\Middleware\EnsureValidTokenCliente;
 use App\Http\Middleware\LimparSistemasPermitidosAtendenteAoFinalizar;
 use App\Http\Middleware\ResolveAtendenteContext;
+use App\Http\Middleware\ResolveAtendenteExternoContext;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.api-key' => EnsureAdminApiKey::class,
             'atendente.auth-bypass' => EnableAtendenteAuthRlsBypass::class,
             'atendente.context' => ResolveAtendenteContext::class,
+            'atendente.externo.context' => ResolveAtendenteExternoContext::class,
             'cliente.token' => EnsureValidTokenCliente::class,
             'broadcasting.limpar-sistemas-permitidos' => LimparSistemasPermitidosAtendenteAoFinalizar::class,
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrigemAtendente;
 use App\Enums\StatusAtendente;
 use App\Models\Concerns\BelongsToSistema;
 use Database\Factories\AtendenteFactory;
@@ -26,6 +27,8 @@ class Atendente extends Model implements AuthenticatableContract
         'email',
         'senha',
         'status',
+        'sub_externo',
+        'origem',
     ];
 
     /**
@@ -43,6 +46,7 @@ class Atendente extends Model implements AuthenticatableContract
         return [
             'senha' => 'hashed',
             'status' => StatusAtendente::class,
+            'origem' => OrigemAtendente::class,
         ];
     }
 

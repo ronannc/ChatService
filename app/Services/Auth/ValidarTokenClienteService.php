@@ -75,6 +75,7 @@ class ValidarTokenClienteService
             iss: $sistema->codigo,
             sub: $claims[ClaimTokenCliente::Sub->value],
             scope: $claims[ClaimTokenCliente::Scope->value],
+            role: $claims[ClaimTokenCliente::Role->value] ?? ContratoTokenCliente::ROLE_CLIENTE,
             claims: $claims,
         );
     }

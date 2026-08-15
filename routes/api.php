@@ -18,6 +18,18 @@ Route::middleware(['atendente.auth-bypass', 'auth:sanctum', 'atendente.context']
 });
 
 /**
+ * Atendente externo (CHAT-005B): mesmo JWT/JWKS do cliente final
+ * (`cliente.token`), diferenciado pela claim `role=atendente`. Grupo de
+ * rotas dedicado — nunca reaproveita as rotas acima, que só aceitam
+ * Sanctum. `atendente.externo.context` provisiona just-in-time o atendente
+ * (sem cadastro prévio) e roda depois de `cliente.token`, que já resolveu
+ * `SistemaContext` a partir do `iss` do token.
+ */
+Route::middleware(['cliente.token', 'atendente.externo.context'])->prefix('atendente-externo')->group(function () {
+    Route::get('me', [MeController::class, 'show']);
+});
+
+/**
  * Autorização de canal privado de broadcasting (CHAT-006). Path final:
  * /api/broadcasting/auth — o cliente Echo precisa apontar `authEndpoint`
  * pra cá, não para o default `/broadcasting/auth` do Laravel.

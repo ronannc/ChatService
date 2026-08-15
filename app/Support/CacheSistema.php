@@ -27,13 +27,25 @@ class CacheSistema
      * é cacheado — isso evitaria que um sistema recém-cadastrado passasse a
      * responder antes do TTL de um cache negativo expirar, e o custo de um
      * `SELECT` extra recai só sobre tokens com `iss` desconhecido.
+     *
+     * Cacheia os atributos crus (array), não o Model Eloquent inteiro: o
+     * store `redis` (config/cache.php) não define `serialize`, e a partir da
+     * segunda leitura o `unserialize()` de um Model (que carrega closures em
+     * `$classCastCache`/relações internamente ou, no caso comum, simplesmente
+     * o objeto sem `allowed_classes`) volta como `__PHP_Incomplete_Class` —
+     * quebra `ValidarTokenClienteService` com `TypeError` já na segunda
+     * validação de token do mesmo `iss`. Reconstruir via
+     * `Sistema::newFromBuilder()` a partir de um array evita depender de
+     * como o driver de cache serializa objetos.
      */
     public static function buscarPorCodigo(string $codigo): ?Sistema
     {
-        return Cache::rememberForever(
+        $atributos = Cache::rememberForever(
             self::chave($codigo),
-            fn (): ?Sistema => Sistema::where('codigo', $codigo)->first(),
+            fn (): ?array => Sistema::where('codigo', $codigo)->first()?->getAttributes(),
         );
+
+        return $atributos === null ? null : (new Sistema)->newFromBuilder($atributos);
     }
 
     public static function esquecer(string $codigo): void

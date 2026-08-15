@@ -79,13 +79,13 @@ Não coloque dado sensível no payload: um JWT é **assinado, não criptografado
 
 #### 2.3.1 `role`
 
-**Hoje, o único valor aceito é `cliente`.** A claim pode ser omitida (equivale a `cliente`). Qualquer outro valor — inclusive `atendente`, que faz parte do vocabulário — **invalida o token**.
+**Os valores aceitos hoje são `cliente` e `atendente`.** A claim pode ser omitida (equivale a `cliente`). Qualquer outro valor **invalida o token**.
 
-Isso vale mesmo para `atendente` porque `role` é uma claim de privilégio cujo conteúdo é definido inteiramente pelo sistema emissor. Enquanto não existe fluxo que implemente o atendente externo (CHAT-005B), aceitar o valor não habilita nada de legítimo e só cria a chance de uma implementação futura honrá-lo por engano — escalação de privilégio a partir de um campo que o emissor escolhe sozinho. A regra falha fechada: o que não é aceito é rejeitado.
+`role` é uma claim de privilégio cujo conteúdo é definido inteiramente pelo sistema emissor — por isso o papel **nunca é conferido pela claim isolada**: um token com `role=atendente` faz o chat service resolver ou provisionar (just-in-time, sem cadastro prévio de e-mail/senha) a linha em `atendentes` e o vínculo em `atendente_sistema` do sistema emissor (`iss`), a partir do `sub` do próprio token — a claim indica qual verificação/fluxo seguir, ela não é a verificação. Qualquer sistema integrado cadastrado e ativo pode emitir `role=atendente`; não há flag adicional de aprovação no cadastro do sistema — a garantia é a mesma pipeline RS256/JWKS/sistema-ativo que protege o restante do contrato.
 
-Quando CHAT-005B chegar, `atendente` passa a ser aceito, **mas o papel nunca será conferido pela claim isolada**: o `(iss, sub)` do token terá de casar com um vínculo real em `atendente_sistema`. A claim indica qual verificação fazer; ela não é a verificação.
+**A identidade do atendente externo é `sub` sozinho, sem escopo por `iss`** — diferente do cliente final, onde a identidade é o par `(iss, sub)` (§2.2). Isso é deliberado: a API core externa usa o mesmo `sub` para a mesma pessoa em qualquer sistema integrado, e o mesmo atendente humano autenticando por dois sistemas diferentes precisa continuar sendo o mesmo registro `Atendente` no chat service — o vínculo com cada sistema adicional é acumulado em `atendente_sistema`, não gera uma segunda identidade. **Risco aceito, decisão do usuário**: como a correlação não é escopada por sistema, um sistema integrado comprometido que emita um `sub` colidente com o de um atendente já vinculado a outro sistema ganha vínculo com a identidade existente daquele atendente, herdando o que ele já tem acesso via os demais sistemas vinculados — mitigado só pela mesma garantia de confiança no emissor (cadastro ativo + RS256/JWKS), sem verificação adicional de unicidade de `sub` entre emissores.
 
-Em código: `ContratoTokenCliente::rolesConhecidos()` é o vocabulário completo, `rolesAceitos()` é o que passa hoje. CHAT-005B mexe no segundo.
+Em código: `ContratoTokenCliente::rolesConhecidos()` é o vocabulário completo, `rolesAceitos()` é o que passa hoje (os dois, desde CHAT-005B). O provisionamento do atendente externo é `App\Services\Atendente\ProvisionarAtendenteExternoService`.
 
 #### 2.3.2 `cliente_unificado_ref`
 
@@ -219,7 +219,7 @@ A coluna **Onde** diz o que basta para detectar cada motivo: `token` é observá
 | Expirado | token | `exp` no passado, já descontada a tolerância de 60s. |
 | `iat` no futuro | token | `iat` adiante do relógio do chat service além da tolerância de 60s (§2.5). |
 | TTL acima do teto | token | `exp - iat` maior que 900s. |
-| `role` não aceita | token | `role` presente com valor diferente de `cliente` — inclui `atendente` até CHAT-005B existir (§2.3.1). |
+| `role` não aceita | token | `role` presente com valor diferente de `cliente` ou `atendente` (§2.3.1). |
 | `iss` não cadastrado | cadastro | Nenhum sistema com esse `codigo`. |
 | Sistema inativo | cadastro | O sistema existe, mas está com status `inativo`. |
 | `kid` não encontrado | JWKS | Nenhuma chave com esse `kid` no JWKS do sistema. |
@@ -285,7 +285,6 @@ Um exemplo por motivo, cada um violando exatamente um item da §4:
 | `"iat"` uma hora à frente, com `"exp" = "iat" + 600` | `iat` no futuro |
 | `"exp" - "iat" == 901` | TTL acima do teto |
 | `"role": "supervisor"` | `role` não aceita |
-| `"role": "atendente"` | `role` não aceita |
 | Assinado com uma chave privada que não está no JWKS | Assinatura inválida |
 | Header sem `kid` | `kid` ausente |
 | `"kid": "kid-que-nao-esta-no-jwks"` | `kid` não encontrado |
