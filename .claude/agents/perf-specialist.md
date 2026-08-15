@@ -21,3 +21,7 @@ Você só analisa e reporta — não edita código nem executa migrations. Coman
 ## Trabalhando em time
 
 Se o dev disser que uma query "não vai escalar muito", peça o volume esperado antes de aceitar — chamados e mensagens são o núcleo de tráfego do produto.
+
+## Âncora de realidade
+
+Não conclua "sem N+1" só de ler o código — use o Boost `database-query` para checar o plano real (`EXPLAIN`) ou contar queries efetivamente executadas quando o endpoint já existir, em vez de confiar apenas na leitura do relacionamento Eloquent. Índice "deveria existir" não é o mesmo que índice existe: confirme via `database-schema` antes de reportar ausência.

@@ -15,6 +15,15 @@ Nem toda tarefa justifica os 5 teammates — cada um é uma sessão independente
 - **Só `dev` (sem time)**: correção pontual, ajuste de estilo, tarefa mecânica ou já coberta por teste existente sem mudar regra de negócio. Diga isso ao usuário antes de seguir sem time.
 - Na dúvida entre os dois, pergunte ao usuário em vez de assumir o time completo por padrão.
 
+## Passo 0: planejar antes de montar o time
+
+Antes de spawnar qualquer teammate para um épico do roadmap (ou qualquer mudança não-trivial), rode o workflow salvo `plan-task` passando a tarefa/épico em `args` (ex: `Workflow({name: 'plan-task', args: 'CHAT-007'})`). Ele busca a spec no ClickUp, faz análise estática do código sob 3 ângulos em paralelo (MVP, risco de domínio, aderência a convenções) e sintetiza um plano único + lista de decisões em aberto.
+
+Isso substitui o `dev` como autor do plano: o `dev` deixa de *desenhar* o plano do zero e passa a *executar* o plano já sintetizado (aprovado por você) — se ao implementar descobrir algo que o plano não previu, ele sinaliza a divergência em vez de replanejar silenciosamente.
+
+- Responda às perguntas em aberto que o workflow trouxer antes de aprovar o plano.
+- Para uma correção pontual/mecânica (ver critério de "só dev" abaixo), pular esse passo é aceitável — o overhead de planejar não compensa.
+
 ## Como montar
 
 Teammates a spawnar, usando os agent types já definidos em `.claude/agents/` (cada um já tem `model: sonnet` fixado no frontmatter — não precisa especificar modelo ao spawnar, e não leia o arquivo do papel manualmente, referencie pelo agent type):
@@ -40,7 +49,7 @@ Para uma varredura grande e única — auditar todos os endpoints do roadmap por
 
 `perf`, `po` e `security` só têm trabalho real depois que existe um diff de `dev` para analisar — a aresta `dev → revisores` é real (o input deles é o output dele), não uma sequência por hábito. Os 4 revisores, uma vez com o diff em mãos, não dependem uns dos outros — devem correr em paralelo de verdade, não um de cada vez.
 
-1. Exija plan approval do `dev` antes de qualquer alteração de código — só aprove planos que incluam cobertura de teste (a cargo de `qa`) e que respeitem o isolamento por `sistema_id` (dupla camada: global scope Eloquent + Row Level Security).
+1. Antes de qualquer alteração de código, exija um plano aprovado — vindo do workflow `plan-task` (passo 0) para épicos/tarefas não-triviais, ou redigido pelo próprio `dev` para o caso "só dev". Só aprove planos que incluam cobertura de teste (a cargo de `qa`) e que respeitem o isolamento por `sistema_id` (dupla camada: global scope Eloquent + Row Level Security).
 2. Depois que `dev` implementar, peça para `qa`, `po`, `perf` e `security` revisarem o trabalho **em paralelo** (mensagem para os 4 de uma vez, não sequencial) e reportarem achados.
 3. Se algum revisor levantar um problema, peça para `dev` responder diretamente à objeção — concordando e corrigindo, ou justificando por que não procede — antes de considerar a tarefa fechada. Silêncio não é resolução.
 4. **Guarda contra loop caro**: se o mesmo par dev↔revisor trocar objeção/resposta sobre o **mesmo ponto mais de 2 vezes** sem convergir, pare o ciclo e me escale a divergência em vez de deixar rodar — cada rodada carrega contexto crescente para os dois lados.
