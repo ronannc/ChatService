@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\OrigemAtendente;
 use App\Enums\StatusAtendente;
 use App\Models\Atendente;
 use App\Models\Sistema;
@@ -26,6 +27,23 @@ class AtendenteFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'senha' => Hash::make('password'),
             'status' => StatusAtendente::Ativo,
+            'sub_externo' => null,
+            'origem' => OrigemAtendente::Interno,
         ];
+    }
+
+    /**
+     * Atendente externo (CHAT-005B): provisionado just-in-time a partir de
+     * um JWT com `role=atendente`, sem e-mail/senha — a identidade é o par
+     * `(sistema_id, sub_externo)`.
+     */
+    public function externo(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'email' => null,
+            'senha' => null,
+            'sub_externo' => (string) fake()->unique()->numerify('externo-####'),
+            'origem' => OrigemAtendente::Externo,
+        ]);
     }
 }

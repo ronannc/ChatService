@@ -55,10 +55,10 @@ test('o vocabulário de scope é o publicado no contrato', function () {
     expect(ContratoTokenCliente::scopesConhecidos())->toBe(['chat:ler', 'chat:escrever']);
 });
 
-test('o contrato reserva o papel de atendente para CHAT-005B sem aceitá-lo hoje', function () {
+test('o contrato aceita tanto cliente quanto atendente (CHAT-005B), sem nenhum outro papel', function () {
     expect(ContratoTokenCliente::rolesConhecidos())->toBe(['cliente', 'atendente'])
-        ->and(ContratoTokenCliente::rolesAceitos())->toBe(['cliente'])
-        ->and(ContratoTokenCliente::rolesAceitos())->not->toContain(ContratoTokenCliente::ROLE_ATENDENTE);
+        ->and(ContratoTokenCliente::rolesAceitos())->toBe(['cliente', 'atendente'])
+        ->and(ContratoTokenCliente::rolesAceitos())->toContain(ContratoTokenCliente::ROLE_ATENDENTE);
 });
 
 test('o cache do jwks tem ttl positivo e negativo definidos, com o negativo mais curto', function () {

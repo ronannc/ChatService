@@ -148,6 +148,22 @@ class GeradorTokenTeste
         return self::valido([ClaimTokenCliente::Role->value => ContratoTokenCliente::ROLE_ATENDENTE]);
     }
 
+    /**
+     * Token com `role=atendente` (CHAT-005B), aceito hoje pelo contrato e
+     * usado pelo fluxo de provisionamento just-in-time de atendente externo
+     * (`ProvisionarAtendenteExternoService`). Aceita overrides (ex.: `iss`
+     * ou `sub` diferentes) para exercitar múltiplos sistemas/identidades.
+     *
+     * @param  array<string, mixed>  $overrides
+     */
+    public static function papelAtendente(array $overrides = []): string
+    {
+        return self::valido([
+            ClaimTokenCliente::Role->value => ContratoTokenCliente::ROLE_ATENDENTE,
+            ...$overrides,
+        ]);
+    }
+
     /** Duas partes: falta a assinatura. */
     public static function comDuasPartes(): string
     {

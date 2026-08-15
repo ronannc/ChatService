@@ -52,6 +52,20 @@ test('token válido resolve sistema, sub e scope corretamente', function () {
         ->and($resultado->scope)->toBe(GeradorTokenTeste::SCOPE);
 });
 
+test('token com role=atendente (CHAT-005B) resolve normalmente e marca ehAtendente()', function () {
+    $resultado = $this->validar->handle(GeradorTokenTeste::papelAtendente());
+
+    expect($resultado->role)->toBe(ContratoTokenCliente::ROLE_ATENDENTE)
+        ->and($resultado->ehAtendente())->toBeTrue();
+});
+
+test('token sem a claim role (fallback) resolve como cliente e ehAtendente() é falso', function () {
+    $resultado = $this->validar->handle(GeradorTokenTeste::semClaim(ClaimTokenCliente::Role));
+
+    expect($resultado->role)->toBe(ContratoTokenCliente::ROLE_CLIENTE)
+        ->and($resultado->ehAtendente())->toBeFalse();
+});
+
 test('cada motivo de invalidez observável no próprio token rejeita com a mesma exceção genérica', function (string $metodoOuValor) {
     $token = method_exists(GeradorTokenTeste::class, $metodoOuValor)
         ? GeradorTokenTeste::{$metodoOuValor}()
@@ -71,7 +85,6 @@ test('cada motivo de invalidez observável no próprio token rejeita com a mesma
     'iat no futuro' => ['iatNoFuturo'],
     'ttl acima do teto' => ['ttlAcimaDoMaximo'],
     'role não aceita: valor fora do vocabulário' => ['roleNaoReconhecida'],
-    'role não aceita: atendente antes de CHAT-005B' => ['rolePapelAtendente'],
     'assinatura inválida' => ['assinadoPorOutraChave'],
     'kid não encontrado no jwks' => ['kidDesconhecido'],
 ]);
