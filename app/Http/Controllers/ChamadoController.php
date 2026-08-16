@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreChamadoRequest;
 use App\Services\Auth\TokenClienteValidado;
+use App\Services\Chamado\ListarFilaChamadosService;
 use App\Services\Chamado\StoreChamadoService;
 use Illuminate\Http\JsonResponse;
 
@@ -17,5 +18,10 @@ class ChamadoController extends Controller
         $chamado = $service->handle($tokenCliente);
 
         return response()->json($chamado, 201);
+    }
+
+    public function index(ListarFilaChamadosService $service): JsonResponse
+    {
+        return response()->json($service->handle());
     }
 }
