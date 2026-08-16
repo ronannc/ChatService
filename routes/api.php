@@ -15,8 +15,15 @@ Route::middleware(['admin.api-key', 'throttle:30,1'])->prefix('admin')->group(fu
 
 Route::post('atendentes/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 
-Route::middleware(['atendente.auth-bypass', 'auth:sanctum', 'atendente.context'])->group(function () {
+/**
+ * `broadcasting.limpar-sistemas-permitidos` (LimparSistemasPermitidosAtendenteAoFinalizar)
+ * aplica-se a todo o grupo, não só a `/fila`: qualquer rota aqui pode, no
+ * futuro, setar `app.sistemas_permitidos_atendente` (hoje é `/fila`, via
+ * `ListarFilaChamadosService`), e o GUC não pode sobreviver além da request.
+ */
+Route::middleware(['atendente.auth-bypass', 'auth:sanctum', 'atendente.context', 'broadcasting.limpar-sistemas-permitidos'])->group(function () {
     Route::get('atendentes/me', [MeController::class, 'show']);
+    Route::get('fila', [ChamadoController::class, 'index']);
 });
 
 /**
