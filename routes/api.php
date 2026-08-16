@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\SistemaController;
 use App\Http\Controllers\Atendente\AuthController;
 use App\Http\Controllers\Atendente\MeController;
+use App\Http\Controllers\ChamadoController;
 use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Support\Facades\Route;
 
@@ -56,3 +57,12 @@ Route::middleware(['cliente.token', 'atendente.externo.context'])->prefix('atend
  */
 Route::post('broadcasting/auth', [BroadcastController::class, 'authenticate'])
     ->middleware(['atendente.auth-bypass', 'broadcasting.limpar-sistemas-permitidos', 'throttle:60,1']);
+
+/**
+ * Abertura de chamado pelo cliente final (CHAT-008). `cliente.token` resolve
+ * autenticação/assinatura e o `SistemaContext` a partir do `iss`;
+ * `cliente.scope-escrever` é o gate de autorização de escopo, isolado do
+ * anterior (.ai/rules/tokens.md — os dois mecanismos não se misturam).
+ */
+Route::post('chamados', [ChamadoController::class, 'store'])
+    ->middleware(['cliente.token', 'cliente.scope-escrever']);
