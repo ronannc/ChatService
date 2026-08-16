@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnableAtendenteAuthRlsBypass;
 use App\Http\Middleware\EnsureAdminApiKey;
+use App\Http\Middleware\EnsureScopeEscreverCliente;
 use App\Http\Middleware\EnsureValidTokenCliente;
 use App\Http\Middleware\LimparSistemasPermitidosAtendenteAoFinalizar;
 use App\Http\Middleware\ResolveAtendenteContext;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'atendente.context' => ResolveAtendenteContext::class,
             'atendente.externo.context' => ResolveAtendenteExternoContext::class,
             'cliente.token' => EnsureValidTokenCliente::class,
+            'cliente.scope-escrever' => EnsureScopeEscreverCliente::class,
             'broadcasting.limpar-sistemas-permitidos' => LimparSistemasPermitidosAtendenteAoFinalizar::class,
         ]);
 
