@@ -5,27 +5,27 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 923 nodes · 1511 edges · 101 communities (76 shown, 25 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 29 edges (avg confidence: 0.77)
+- 922 nodes · 1511 edges · 89 communities (69 shown, 20 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 28 edges (avg confidence: 0.77)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ee0da685`
+- Built from commit: `2df6eca4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Illuminate\Http\JsonResponse
-- ValidarTokenClienteService
+- Illuminate\Http\Request
 - Fila / leitura multi-sistema de Chamado e Mensagem
 - composer.json
-- ContratoTokenCliente
+- ValidarTokenClienteService
 - GeradorTokenTeste
 - Pest Testing Skill
 - ProvisionarAtendenteExternoService
-- docker-compose.yml Service Definitions
+- Queue & Job Best Practices
 - Chamado
-- BuscarJwksSegurancaService
+- Sistema
 - scripts
 - Contrato do token assinado — sistema integrado → chat service
 - User
@@ -67,11 +67,8 @@
 - init.sh
 - Enviar métricas para 4TechLead Workflow
 - Use Concurrency::run() for Parallel Execution
-- Sistema
 - SistemaContext
-- AtendenteSistema
 - graphify reference: query, path, explain
-- RepositorioJwks
 - graphify reference: add a URL and watch a folder
 - graphify reference: commit hook and native CLAUDE.md integration
 - graphify reference: incremental update and cluster-only
@@ -79,39 +76,30 @@
 - graphify reference: transcribe video and audio
 - CLAUDE.md
 - extraction-spec.md
-- Queue & Job Best Practices
-- Illuminate\Database\Eloquent\Factories\Factory
-- Project Rules Index
-- ListarFilaChamadosService.php
-- laravel-best-practices skill
-- Mensagens não cobrem atendente externo multi-sistema (CHAT-005B gap)
-- CacheSistema
-- atendente_sistema (tabela de vínculo)
-- Illuminate\Support\Str
 
 ## God Nodes (most connected - your core abstractions)
 1. `GeradorTokenTeste` - 49 edges
-2. `Sistema` - 46 edges
+2. `Sistema` - 47 edges
 3. `Atendente` - 38 edges
-4. `Chamado` - 34 edges
+4. `Chamado` - 36 edges
 5. `ValidarTokenClienteService` - 31 edges
-6. `SistemaContext` - 27 edges
+6. `SistemaContext` - 30 edges
 7. `RepositorioJwks` - 23 edges
 8. `BuscarJwksSegurancaService` - 18 edges
 9. `ContratoTokenCliente` - 18 edges
-10. `GuardaHostSeguro` - 17 edges
+10. `Mensagem` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Single-Purpose Action Classes` --semantically_similar_to--> `Um Service por ação, controller magro`  [INFERRED] [semantically similar]
-  .claude/skills/laravel-best-practices/rules/architecture.md → .ai/rules/controllers.md
 - `Endpoint JWKS (RFC 7517)` --semantically_similar_to--> `Always Set Explicit Timeouts`  [INFERRED] [semantically similar]
   docs/contratos/token-cliente.md → .claude/skills/laravel-best-practices/rules/http-client.md
 - `Cache e Refetch do JWKS (§3.2)` --semantically_similar_to--> `Retry with Backoff for External APIs`  [INFERRED] [semantically similar]
   docs/contratos/token-cliente.md → .claude/skills/laravel-best-practices/rules/http-client.md
+- `Single-Purpose Action Classes` --semantically_similar_to--> `Um Service por ação, controller magro`  [INFERRED] [semantically similar]
+  .claude/skills/laravel-best-practices/rules/architecture.md → .ai/rules/controllers.md
 - `Use Atomic Locks for Race Conditions` --semantically_similar_to--> `Idempotência via firstOrCreate (não catch de unique)`  [INFERRED] [semantically similar]
   .claude/skills/laravel-best-practices/rules/architecture.md → .ai/rules/atendente-externo.md
-- `prepararTabelaSistemasParaTeste()` --calls--> `Sistema`  [EXTRACTED]
-  tests/Pest.php → app/Models/Sistema.php
+- `tokenAtendente()` --references--> `Atendente`  [EXTRACTED]
+  tests/Pest.php → app/Models/Atendente.php
 
 ## Import Cycles
 - None detected.
@@ -124,15 +112,15 @@
 - **Token Validation Pipeline (contract, code, tests)** — docs_contratos_token_cliente, app_enums_claimtokencliente, app_support_contratotokencliente, tests_support_geradortokenteste [EXTRACTED 1.00]
 - **Broadcast Channel Authorization Flow** — docs_contratos_canal_chamado_broadcast, app_services_broadcasting_autorizarcanalchamadoservice, docs_contratos_token_cliente, docker_compose_reverb_service [INFERRED 0.85]
 
-## Communities (101 total, 25 thin omitted)
+## Communities (89 total, 20 thin omitted)
 
 ### Community 0 - "Illuminate\Http\JsonResponse"
 Cohesion: 0.06
-Nodes (25): SistemaController, AuthController, MeController, ChamadoController, Controller, MensagemController, StoreSistemaRequest, UpdateSistemaRequest (+17 more)
+Nodes (21): SistemaController, AuthController, MeController, ChamadoController, Controller, StoreSistemaRequest, UpdateSistemaRequest, LoginAtendenteRequest (+13 more)
 
-### Community 1 - "ValidarTokenClienteService"
-Cohesion: 0.07
-Nodes (22): EnableAtendenteAuthRlsBypass, EnsureAdminApiKey, EnsureAutorizadoEnviarMensagem, EnsureParticipanteChamado, EnsureScopeEscreverCliente, EnsureValidTokenCliente, IdentificarAtendenteMensagem, IdentificarClienteMensagem (+14 more)
+### Community 1 - "Illuminate\Http\Request"
+Cohesion: 0.10
+Nodes (20): EnableAtendenteAuthRlsBypass, EnsureAdminApiKey, EnsureAutorizadoEnviarMensagem, EnsureParticipanteChamado, EnsureScopeEscreverCliente, EnsureValidTokenCliente, IdentificarAtendenteMensagem, IdentificarClienteMensagem (+12 more)
 
 ### Community 2 - "Fila / leitura multi-sistema de Chamado e Mensagem"
 Cohesion: 0.40
@@ -142,33 +130,33 @@ Nodes (4): Fila / leitura multi-sistema de Chamado e Mensagem, Risco latente: po
 Cohesion: 0.04
 Nodes (46): pestphp/pest-plugin, php-http/discovery, autoload, autoload-dev, psr-4, psr-4, config, allow-plugins (+38 more)
 
-### Community 4 - "ContratoTokenCliente"
-Cohesion: 0.15
-Nodes (7): TokenClienteInvalidoException, ContratoTokenCliente, Firebase\JWT\JWK, Illuminate\Contracts\Cache\LockTimeoutException, Illuminate\Support\Facades\Log, RuntimeException, Throwable
+### Community 4 - "ValidarTokenClienteService"
+Cohesion: 0.10
+Nodes (7): obrigatoria(), opcionais(), ValidarTokenClienteService, ContratoTokenCliente, Motivos de Invalidez (tabela fechada), Firebase\JWT\JWK, OpenSSLAsymmetricKey
 
 ### Community 5 - "GeradorTokenTeste"
-Cohesion: 0.06
-Nodes (8): obrigatoria(), opcionais(), ClaimTokenCliente, Motivos de Invalidez (tabela fechada), issDoToken(), GeradorTokenTeste, chavePublicaDoHeader(), motivosDeInvalidez()
+Cohesion: 0.07
+Nodes (5): ClaimTokenCliente, issDoToken(), GeradorTokenTeste, chavePublicaDoHeader(), motivosDeInvalidez()
 
 ### Community 6 - "Pest Testing Skill"
-Cohesion: 0.06
-Nodes (30): Database Performance Best Practices, Chunk / chunkById Large Datasets, cursor() Memory-Efficient Iteration, Eager Load Relationships (N+1 prevention), Add Database Indexes, No Queries in Blade Templates, Select Only Needed Columns, withCount() for Counting Relations (+22 more)
+Cohesion: 0.05
+Nodes (37): Laravel Boost Guidelines (embedded), Database Performance Best Practices, Chunk / chunkById Large Datasets, cursor() Memory-Efficient Iteration, Eager Load Relationships (N+1 prevention), Add Database Indexes, No Queries in Blade Templates, Select Only Needed Columns (+29 more)
 
 ### Community 7 - "ProvisionarAtendenteExternoService"
-Cohesion: 0.20
-Nodes (9): ProvisionarAtendenteExternoService, Bypass de global scope/RLS só no lookup (mecanismo), EnableAtendenteAuthRlsBypass (middleware), EnsureValidTokenCliente (middleware), Idempotência via firstOrCreate (não catch de unique), Risco de SET LOCAL sobreviver a SAVEPOINT aninhado (rationale), SistemaContext::GUC_BYPASS_RESOLUCAO_ATENDENTE, Use Atomic Locks for Race Conditions (+1 more)
+Cohesion: 0.08
+Nodes (29): atendente_sistema (tabela de vínculo), AtendenteContext::sistemasPermitidos(), Atendente Externo (CHAT-005B), ProvisionarAtendenteExternoService, Bypass de global scope/RLS só no lookup (mecanismo), EnableAtendenteAuthRlsBypass (middleware), EnsureValidTokenCliente (middleware), Idempotência via firstOrCreate (não catch de unique) (+21 more)
 
-### Community 8 - "docker-compose.yml Service Definitions"
-Cohesion: 0.09
-Nodes (26): CLAUDE.md Project Guidance, CHAT-003 Postgres Non-Superuser Role for RLS, Docker Compose as Real Local Environment, Laravel Boost Guidelines (embedded), Conventions & Style Best Practices, Laravel Naming Conventions Table, No Inline JS/CSS in Blade, No Unnecessary Comments (+18 more)
+### Community 8 - "Queue & Job Best Practices"
+Cohesion: 0.08
+Nodes (28): CLAUDE.md Project Guidance, CHAT-003 Postgres Non-Superuser Role for RLS, Docker Compose as Real Local Environment, Queue & Job Best Practices, Bus::batch() Batch Related Jobs, Use Horizon for Complex Queue Scenarios, RateLimited Middleware for Jobs, retry_after Greater Than timeout (+20 more)
 
 ### Community 9 - "Chamado"
-Cohesion: 0.08
-Nodes (21): MensagemEnviada, App\Models\Chamado, Chamado, sistema(), Mensagem, App\Services\Chamado\StoreChamadoService, StoreChamadoService, MensagemFactory (+13 more)
+Cohesion: 0.09
+Nodes (19): MensagemEnviada, MensagemController, Chamado, sistema(), Mensagem, ListarMensagensService, StoreMensagemService, MensagemFactory (+11 more)
 
-### Community 10 - "BuscarJwksSegurancaService"
-Cohesion: 0.15
-Nodes (9): App\Enums\StatusChamado, BuscarJwksSegurancaService, GuardaHostSeguro, Illuminate\Database\QueryException, Illuminate\Support\Facades\Cache, Illuminate\Support\Facades\Event, Illuminate\Support\Facades\Hash, Illuminate\Support\Facades\Http (+1 more)
+### Community 10 - "Sistema"
+Cohesion: 0.05
+Nodes (30): TokenClienteInvalidoException, AtendenteSistema, Sistema, BuscarJwksSegurancaService, RepositorioJwks, GuardaHostSeguro, AtendenteFactory, static (+22 more)
 
 ### Community 11 - "scripts"
 Cohesion: 0.08
@@ -179,16 +167,20 @@ Cohesion: 0.15
 Nodes (15): Canal privado de um chamado (broadcasting) — CHAT-006, POST /api/broadcasting/auth Endpoint, private-chamado.{chamado_id} Echo Channel, Regra de Autorização (cliente vs atendente por sistema), Renovação de Token (client-side responsibility), Contrato do token assinado — sistema integrado → chat service, Cache do Cadastro do Sistema (invalidação explícita), Cadastro do Sistema (codigo, jwks_url, status) (+7 more)
 
 ### Community 13 - "User"
-Cohesion: 0.16
-Nodes (9): User, static, UserFactory, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Attributes\Fillable, Illuminate\Database\Eloquent\Attributes\Hidden, Illuminate\Foundation\Auth\User (+1 more)
+Cohesion: 0.11
+Nodes (11): User, static, UserFactory, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Attributes\Fillable, Illuminate\Database\Eloquent\Attributes\Hidden, Illuminate\Foundation\Auth\User (+3 more)
 
 ### Community 14 - "/team command"
-Cohesion: 0.29
-Nodes (11): dev-laravel agent, perf-specialist agent, po-validator agent, qa-pest agent, security-reviewer agent, Posse de arquivo dev x qa (fronteira reforçada por hook), Grafo de dependências do time (dev -> revisores paralelos), plan-task workflow (+3 more)
+Cohesion: 0.11
+Nodes (23): Um Service por ação, controller magro, StoreSistemaService (exemplo), dev-laravel agent, perf-specialist agent, po-validator agent, qa-pest agent, security-reviewer agent, Posse de arquivo dev x qa (fronteira reforçada por hook) (+15 more)
 
 ### Community 15 - "Pest.php"
 Cohesion: 0.20
 Nodes (8): Illuminate\Foundation\Testing\TestCase, Illuminate\Testing\TestResponse, autorizarCanalDoChamado(), criarAtendente(), prepararTabelaSistemasParaTeste(), sistemaContext(), tokenAtendente(), TestCase
+
+### Community 16 - "Atendente"
+Cohesion: 0.16
+Nodes (6): Atendente, AtendenteContext, Illuminate\Auth\Authenticatable, Illuminate\Database\Eloquent\Relations\HasMany, Illuminate\Support\Collection, Laravel\Sanctum\HasApiTokens
 
 ### Community 17 - "devDependencies"
 Cohesion: 0.11
@@ -264,15 +256,11 @@ Nodes (6): Configuration Best Practices, App::environment() Checks, Constants an
 
 ### Community 47 - "SistemaScope.php"
 Cohesion: 0.60
-Nodes (4): App\Models\Scopes\SistemaScope, SistemaScope, Illuminate\Database\Eloquent\Builder, Illuminate\Database\Eloquent\Scope
+Nodes (3): SistemaScope, Illuminate\Database\Eloquent\Builder, Illuminate\Database\Eloquent\Scope
 
-### Community 80 - "Sistema"
-Cohesion: 0.20
-Nodes (6): App\Models\Sistema, Sistema, SistemaFactory, SistemaSeeder, Illuminate\Foundation\Testing\RefreshDatabase, Laravel\Sanctum\PersonalAccessToken
-
-### Community 82 - "AtendenteSistema"
-Cohesion: 0.17
-Nodes (7): App\Models\AtendenteSistema, AtendenteSistema, AtendenteSistemaFactory, AtendenteSeeder, Illuminate\Auth\AuthenticationException, Illuminate\Database\Seeder, Illuminate\Support\Facades\DB
+### Community 81 - "SistemaContext"
+Cohesion: 0.18
+Nodes (3): ListarFilaChamadosService, SistemaContext, Illuminate\Pagination\LengthAwarePaginator
 
 ### Community 83 - "graphify reference: query, path, explain"
 Cohesion: 0.33
@@ -290,34 +278,6 @@ Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify refer
 Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
-### Community 92 - "Queue & Job Best Practices"
-Cohesion: 0.20
-Nodes (9): Queue & Job Best Practices, Bus::batch() Batch Related Jobs, Use Horizon for Complex Queue Scenarios, RateLimited Middleware for Jobs, retry_after Greater Than timeout, retryUntil() Needs tries=0, ShouldBeUnique, ShouldBeUniqueUntilProcessing (+1 more)
-
-### Community 93 - "Illuminate\Database\Eloquent\Factories\Factory"
-Cohesion: 0.22
-Nodes (5): AtendenteFactory, static, ChamadoFactory, static, Illuminate\Database\Eloquent\Factories\Factory
-
-### Community 94 - "Project Rules Index"
-Cohesion: 0.22
-Nodes (9): Um Service por ação, controller magro, StoreSistemaService (exemplo), Project Rules Index, tokens.md (rule file, referenced by index), Detection Checklist (49 convention dimensions), Consistency First principle (document reality not improve it), infer-conventions skill, record-rule MCP tool (+1 more)
-
-### Community 95 - "ListarFilaChamadosService.php"
-Cohesion: 0.39
-Nodes (5): ListarFilaChamadosService, App\Support\AtendenteContext, App\Support\SistemaContext, Illuminate\Pagination\LengthAwarePaginator, Illuminate\Support\Collection
-
-### Community 96 - "laravel-best-practices skill"
-Cohesion: 0.22
-Nodes (9): addSelect() correlated subqueries for single values, $attributes->merge() in component templates, @pushOnce for per-component scripts, View Composers for shared view data, Cache::flexible() stale-while-revalidate, Cache::remember() instead of manual get/put, #[CollectedBy] for custom collection classes, Higher-Order Messages for simple operations (+1 more)
-
-### Community 97 - "Mensagens não cobrem atendente externo multi-sistema (CHAT-005B gap)"
-Cohesion: 0.32
-Nodes (8): chamados_isolamento_sistema (RLS policy), Policies RLS de chamados combinadas via OR, chamados_sistemas_permitidos_atendente (RLS policy, CHAT-006), Dual-auth middleware por formato de token (padrão), IdentificarAtendenteMensagem (middleware), IdentificarClienteMensagem (middleware), mensagens_isolamento_sistema (RLS policy), Mensagens não cobrem atendente externo multi-sistema (CHAT-005B gap)
-
-### Community 99 - "atendente_sistema (tabela de vínculo)"
-Cohesion: 0.40
-Nodes (6): atendente_sistema (tabela de vínculo), AtendenteContext::sistemasPermitidos(), Atendente Externo (CHAT-005B), Identidade por sub_externo sozinho (rationale), Risco aceito de colisão de sub entre sistemas (rationale), Vazamento de existência de sistema via sistemas_permitidos (rationale)
-
 ## Ambiguous Edges - Review These
 - `$attributes->merge() in component templates` → `View Composers for shared view data`  [AMBIGUOUS]
   .claude/skills/laravel-best-practices/rules/blade-views.md · relation: conceptually_related_to
@@ -329,9 +289,9 @@ Nodes (6): atendente_sistema (tabela de vínculo), AtendenteContext::sistemasPer
   .claude/skills/laravel-best-practices/rules/caching.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **171 isolated node(s):** `SistemaScope aplica `whereRaw(1=0)` quando `SistemaContext->get()` é null`, `Índice parcial para filtro por status transitório + ordenação`, `Risco latente: policy OR de `chamados` vaza se os dois GUCs coexistirem sujos na mesma conexão`, `Composer\\Config::disableProcessTimeout`, `composer install` (+166 more)
+- **171 isolated node(s):** `meta`, `CONTEXT_SCHEMA`, `PLAN_SCHEMA`, `php`, `$schema` (+166 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **25 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **20 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -344,9 +304,9 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `Cache Tags for group invalidation` and `Failover cache stores in production`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `GeradorTokenTeste` connect `GeradorTokenTeste` to `Sistema`, `BuscarJwksSegurancaService`, `ContratoTokenCliente`, `AtendenteSistema`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
-- **Why does `Sistema` connect `Sistema` to `Illuminate\Http\JsonResponse`, `ValidarTokenClienteService`, `CacheSistema`, `ContratoTokenCliente`, `Chamado`, `BuscarJwksSegurancaService`, `Pest.php`, `AtendenteSistema`, `RepositorioJwks`, `Illuminate\Database\Eloquent\Factories\Factory`?**
-  _High betweenness centrality (0.069) - this node is a cross-community bridge._
-- **Why does `Pest Testing Skill` connect `Pest Testing Skill` to `docker-compose.yml Service Definitions`, `GeradorTokenTeste`?**
+- **Why does `GeradorTokenTeste` connect `GeradorTokenTeste` to `Sistema`, `ValidarTokenClienteService`?**
+  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+- **Why does `Sistema` connect `Sistema` to `Illuminate\Http\JsonResponse`, `Chamado`, `ValidarTokenClienteService`, `Pest.php`?**
+  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `Pest Testing Skill` connect `Pest Testing Skill` to `ValidarTokenClienteService`?**
   _High betweenness centrality (0.058) - this node is a cross-community bridge._
