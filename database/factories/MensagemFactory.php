@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\RemetenteMensagem;
 use App\Models\Chamado;
 use App\Models\Mensagem;
 use App\Support\SistemaContext;
@@ -30,6 +31,9 @@ class MensagemFactory extends Factory
             'sistema_id' => function (array $attributes) {
                 return Chamado::withoutGlobalScopes()->find($attributes['chamado_id'])->sistema_id;
             },
+            'texto' => fake()->sentence(),
+            'remetente_tipo' => RemetenteMensagem::Cliente,
+            'remetente_ref' => fake()->uuid(),
         ];
     }
 }

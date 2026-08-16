@@ -2,8 +2,12 @@
 
 use App\Http\Middleware\EnableAtendenteAuthRlsBypass;
 use App\Http\Middleware\EnsureAdminApiKey;
+use App\Http\Middleware\EnsureAutorizadoEnviarMensagem;
+use App\Http\Middleware\EnsureParticipanteChamado;
 use App\Http\Middleware\EnsureScopeEscreverCliente;
 use App\Http\Middleware\EnsureValidTokenCliente;
+use App\Http\Middleware\IdentificarAtendenteMensagem;
+use App\Http\Middleware\IdentificarClienteMensagem;
 use App\Http\Middleware\LimparSistemasPermitidosAtendenteAoFinalizar;
 use App\Http\Middleware\ResolveAtendenteContext;
 use App\Http\Middleware\ResolveAtendenteExternoContext;
@@ -30,6 +34,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'cliente.token' => EnsureValidTokenCliente::class,
             'cliente.scope-escrever' => EnsureScopeEscreverCliente::class,
             'broadcasting.limpar-sistemas-permitidos' => LimparSistemasPermitidosAtendenteAoFinalizar::class,
+            'mensagem.identificar-cliente' => IdentificarClienteMensagem::class,
+            'mensagem.identificar-atendente' => IdentificarAtendenteMensagem::class,
+            'mensagem.autorizar-enviar' => EnsureAutorizadoEnviarMensagem::class,
+            'mensagem.autorizar-ler' => EnsureParticipanteChamado::class,
         ]);
 
         // Authenticate tem prioridade fixa no framework e rodaria antes de

@@ -79,6 +79,18 @@ function criarAtendente(array $overrides = []): Atendente
 }
 
 /**
+ * Loga um atendente já criado com a senha padrão de `criarAtendente()`
+ * (CHAT-009, rotas de mensagens) e devolve só o token Sanctum.
+ */
+function tokenAtendente(Atendente $atendente, string $senha = 'password'): string
+{
+    return test()->postJson('/api/atendentes/login', [
+        'email' => $atendente->email,
+        'senha' => $senha,
+    ])->json('token');
+}
+
+/**
  * POST em /api/broadcasting/auth (CHAT-006) no formato que o cliente Echo
  * envia (`channel_name`/`socket_id`), com Bearer opcional. `$bearer` é `null`
  * para exercitar o caso sem nenhuma autenticação.
