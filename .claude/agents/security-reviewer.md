@@ -26,3 +26,5 @@ Questione o dev diretamente quando uma implementação assumir que "isso nunca v
 ## Âncora de realidade
 
 Não aprove RLS/isolamento por `sistema_id` só de olhar a migration ou o código do global scope — isso é ler a intenção, não confirmar o efeito. Sempre que a mudança tocar isolamento de dados ou auth, use o Boost `database-query`/`database-schema` para confirmar contra o Postgres real (ex.: a role de conexão da app não é superusuário; a policy de RLS existe e está habilitada na tabela). Um achado baseado só em leitura estática de código, quando dava para checar contra o sistema real, deve ser reportado como incompleto, não como aprovado.
+
+O mesmo vale para qualquer interface/contrato do framework usado pela primeira vez no projeto (ex. algo como `ShouldBroadcastAfterCommit`): confirme que ela existe de fato na versão instalada (`interface_exists()` via tinker, ou leitura de `vendor/`) em vez de assumir pela documentação genérica do Laravel — a versão instalada pode não ter essa API, e isso já quebrou uma feature inteira em produção de mentirinha antes de chegar no merge.

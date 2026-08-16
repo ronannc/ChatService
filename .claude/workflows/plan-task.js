@@ -1,10 +1,9 @@
 export const meta = {
   name: 'plan-task',
-  description: 'Lê a tarefa/épico do ChatService, faz análise estática do código sob 3 ângulos em paralelo e sintetiza um plano único com decisões em aberto',
+  description: 'Lê a tarefa/épico do ChatService, levanta contexto e gera um plano único cobrindo mínimo viável, risco de domínio e aderência a convenções',
   phases: [
     { title: 'Contexto' },
     { title: 'Planejar' },
-    { title: 'Sintetizar' },
   ],
 }
 
@@ -19,32 +18,23 @@ const CONTEXT_SCHEMA = {
   },
 }
 
+// Um único plano, mas obrigado a endereçar as 3 lentes como campos separados —
+// substitui os 3 agentes paralelos + síntese: nas execuções reais (CHAT-008/009)
+// os 3 ângulos convergiam no mesmo desenho e mal usavam ferramentas (1-8 tool
+// calls cada), ou seja, só reformulavam o mesmo contexto sob um enquadramento
+// diferente. Um agente só, instruído a preencher as 3 seções, reproduz o
+// mesmo resultado por ~metade do custo em tokens/tempo.
 const PLAN_SCHEMA = {
   type: 'object',
-  required: ['resumo', 'passos', 'perguntas_abertas'],
+  required: ['resumo', 'minimo_viavel', 'risco_dominio', 'aderencia_convencoes', 'passos', 'perguntas_abertas'],
   properties: {
     resumo: { type: 'string' },
-    passos: { type: 'array', items: { type: 'string' } },
+    minimo_viavel: { type: 'string', description: 'Qual é o menor incremento que já cumpre o critério de aceite sem generalizar além do que a tarefa pede — o que fica explicitamente fora de escopo' },
+    risco_dominio: { type: 'string', description: 'Isolamento por sistema_id (global scope + RLS) e os mecanismos de auth (JWT cliente / Sanctum atendente): qual ponto desta tarefa é mais perigoso de errar e como blindar' },
+    aderencia_convencoes: { type: 'string', description: 'Quais padrões já estabelecidos no código (Service por ação, FormRequest, factories) esta tarefa deve seguir, e onde ela se desvia do padrão existente, se for o caso' },
+    passos: { type: 'array', items: { type: 'string' }, description: 'Passos concretos: arquivos/camadas a criar ou alterar, em ordem' },
     riscos: { type: 'array', items: { type: 'string' } },
-    perguntas_abertas: { type: 'array', items: { type: 'string' }, description: 'Decisões que só o usuário pode tomar' },
-  },
-}
-
-const SYNTHESIS_SCHEMA = {
-  type: 'object',
-  required: ['plano_final', 'perguntas_abertas'],
-  properties: {
-    plano_final: {
-      type: 'object',
-      required: ['resumo', 'passos'],
-      properties: {
-        resumo: { type: 'string' },
-        passos: { type: 'array', items: { type: 'string' } },
-        riscos: { type: 'array', items: { type: 'string' } },
-      },
-    },
-    perguntas_abertas: { type: 'array', items: { type: 'string' } },
-    justificativa: { type: 'string', description: 'Por que este enfoque venceu e quais ideias dos outros ângulos foram enxertadas' },
+    perguntas_abertas: { type: 'array', items: { type: 'string' }, description: 'Decisões que só o usuário pode tomar — não invente a resposta' },
   },
 }
 
@@ -64,36 +54,21 @@ Não escreva nem edite nenhum arquivo — isso é só levantamento de contexto.`
 )
 
 phase('Planejar')
-const ANGULOS = [
-  { key: 'mvp', foco: 'entregar o menor incremento que já cumpre o critério de aceite, sem generalizar além do que a tarefa pede' },
-  { key: 'risco', foco: 'priorizar isolamento por sistema_id (global scope + RLS) e os dois mecanismos de auth (JWT cliente / Sanctum atendente) — que ponto dessa tarefa é mais perigoso de errar e como blindar' },
-  { key: 'convencao', foco: 'seguir à risca os padrões já estabelecidos no código (Service por ação em app/Services, FormRequest, factories) e apontar onde a tarefa se desvia do padrão existente se for o caso' },
-]
-
-const planos = await parallel(ANGULOS.map((a) => () =>
-  agent(
-    `Tarefa/épico ChatService: "${tarefa}".
+const plano = await agent(
+  `Tarefa/épico ChatService: "${tarefa}".
 Contexto levantado:
 - Critério de aceite: ${contexto.criterio_aceite}
 - Convenções relevantes: ${contexto.convencoes_relevantes}
 - Áreas tocadas: ${contexto.areas_tocadas}
 - Riscos de domínio: ${contexto.riscos_dominio || 'nenhum específico levantado'}
 
-Rascunhe um plano de implementação para esta tarefa com foco em: ${a.foco}.
+Rascunhe UM plano de implementação para esta tarefa que endereça explicitamente as 3 lentes abaixo — preencha cada uma como um campo separado do schema, não pule nenhuma:
+1. Mínimo viável: qual o menor incremento que já cumpre o critério de aceite, sem generalizar além do que a tarefa pede.
+2. Risco de domínio: isolamento por sistema_id (global scope + RLS) e os dois mecanismos de auth (JWT cliente / Sanctum atendente) — qual ponto desta tarefa é mais perigoso de errar e como blindar.
+3. Aderência a convenções: quais padrões já estabelecidos no código (Service por ação em app/Services, FormRequest, factories) esta tarefa deve seguir, e onde ela se desvia do padrão existente, se for o caso.
+
 Não escreva código. Liste passos concretos (arquivos/camadas a criar ou alterar) e, separadamente, toda decisão que dependa de escolha do usuário (não invente a resposta).`,
-    { label: `plano:${a.key}`, phase: 'Planejar', schema: PLAN_SCHEMA },
-  )
-))
-
-phase('Sintetizar')
-const planosValidos = planos.filter(Boolean)
-const sintese = await agent(
-  `Aqui estão ${planosValidos.length} planos independentes para a mesma tarefa ChatService ("${tarefa}"), cada um sob um ângulo diferente:
-
-${planosValidos.map((p, i) => `--- Plano ${i + 1} (ângulo: ${ANGULOS[i].key}) ---\n${JSON.stringify(p, null, 2)}`).join('\n\n')}
-
-Sintetize um único plano final: escolha o enfoque geral mais sólido e enxerte as melhores ideias dos outros ângulos (principalmente riscos de isolamento/auth do ângulo "risco" e aderência a convenções do ângulo "convencao"). Junte e deduplique as perguntas em aberto de todos os planos.`,
-  { schema: SYNTHESIS_SCHEMA, phase: 'Sintetizar' },
+  { schema: PLAN_SCHEMA, phase: 'Planejar' },
 )
 
-return { tarefa, contexto, planos: planosValidos, sintese }
+return { tarefa, contexto, plano }
