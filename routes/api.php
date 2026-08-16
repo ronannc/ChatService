@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\SistemaController;
 use App\Http\Controllers\Atendente\AuthController;
 use App\Http\Controllers\Atendente\MeController;
 use App\Http\Controllers\ChamadoController;
+use App\Http\Controllers\MensagemController;
 use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,3 +67,27 @@ Route::post('broadcasting/auth', [BroadcastController::class, 'authenticate'])
  */
 Route::post('chamados', [ChamadoController::class, 'store'])
     ->middleware(['cliente.token', 'cliente.scope-escrever']);
+
+/**
+ * Troca de mensagens de um chamado (CHAT-009). O endpoint é compartilhado
+ * por cliente final (JWT) e atendente interno (Sanctum) — mecanismos
+ * mutuamente exclusivos, então não dá para reaproveitar `cliente.token`
+ * nem `auth:sanctum` sozinhos aqui (cada um aborta se o mecanismo não for
+ * o seu). `mensagem.identificar-cliente`/`mensagem.identificar-atendente`
+ * são as contrapartes dual-auth: cada uma decide, só pelo formato do bearer
+ * token, se deve tentar autenticar — a validação de cada mecanismo
+ * continua isolada na própria classe (.ai/rules/tokens.md).
+ *
+ * Guard de escrita (`mensagem.autorizar-enviar`) e de leitura
+ * (`mensagem.autorizar-ler`) são middlewares distintos: só o de escrita
+ * bloqueia em chamado resolvido/finalizado.
+ */
+Route::middleware(['mensagem.identificar-cliente', 'mensagem.identificar-atendente'])
+    ->prefix('chamados/{chamado}/mensagens')
+    ->group(function () {
+        Route::post('/', [MensagemController::class, 'store'])
+            ->middleware('mensagem.autorizar-enviar');
+
+        Route::get('/', [MensagemController::class, 'index'])
+            ->middleware('mensagem.autorizar-ler');
+    });

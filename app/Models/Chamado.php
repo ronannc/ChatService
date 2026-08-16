@@ -8,6 +8,7 @@ use App\Models\Concerns\BelongsToSistema;
 use Database\Factories\ChamadoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Chamado extends Model
@@ -21,6 +22,7 @@ class Chamado extends Model
     protected $fillable = [
         'sistema_id',
         'cliente_ref',
+        'atendente_atual_id',
         'status',
         'encerrado_por',
     ];
@@ -39,5 +41,10 @@ class Chamado extends Model
     public function mensagens(): HasMany
     {
         return $this->hasMany(Mensagem::class);
+    }
+
+    public function atendenteAtual(): BelongsTo
+    {
+        return $this->belongsTo(Atendente::class, 'atendente_atual_id');
     }
 }
