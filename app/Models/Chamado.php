@@ -25,6 +25,9 @@ class Chamado extends Model
         'atendente_atual_id',
         'status',
         'encerrado_por',
+        'fluxo_definicao_id',
+        'no_atual',
+        'respostas_coletadas',
     ];
 
     /**
@@ -35,6 +38,7 @@ class Chamado extends Model
         return [
             'status' => StatusChamado::class,
             'encerrado_por' => EncerradoPor::class,
+            'respostas_coletadas' => 'array',
         ];
     }
 
@@ -46,5 +50,10 @@ class Chamado extends Model
     public function atendenteAtual(): BelongsTo
     {
         return $this->belongsTo(Atendente::class, 'atendente_atual_id');
+    }
+
+    public function fluxoDefinicao(): BelongsTo
+    {
+        return $this->belongsTo(FluxoDefinicao::class, 'fluxo_definicao_id');
     }
 }

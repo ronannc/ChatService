@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(SistemaSeeder::class);
         $this->call(AtendenteSeeder::class);
+        $this->call(FluxoDefinicaoSeeder::class);
     }
 }

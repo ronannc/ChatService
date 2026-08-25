@@ -8,6 +8,7 @@ use App\Services\Auth\RepositorioJwks;
 use App\Services\Auth\ValidarTokenClienteService;
 use App\Support\ContratoTokenCliente;
 use App\Support\GuardaHostSeguro;
+use Database\Seeders\FluxoDefinicaoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -26,6 +27,8 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Cache::flush();
+
+    (new FluxoDefinicaoSeeder)->run();
 
     $this->sistemaCliente = Sistema::factory()->create();
 
@@ -50,7 +53,7 @@ test('cliente com escopo de escrita consegue abrir um chamado', function () {
     $resposta->assertCreated()
         ->assertJsonPath('sistema_id', $this->sistemaCliente->codigo)
         ->assertJsonPath('cliente_ref', GeradorTokenTeste::SUB)
-        ->assertJsonPath('status', StatusChamado::AguardandoFila->value);
+        ->assertJsonPath('status', StatusChamado::FluxoEmAndamento->value);
 
     sistemaContext()->set($this->sistemaCliente->codigo);
 
@@ -58,7 +61,7 @@ test('cliente com escopo de escrita consegue abrir um chamado', function () {
     expect($chamado)->not->toBeNull();
     expect($chamado->sistema_id)->toBe($this->sistemaCliente->codigo);
     expect($chamado->cliente_ref)->toBe(GeradorTokenTeste::SUB);
-    expect($chamado->status)->toBe(StatusChamado::AguardandoFila);
+    expect($chamado->status)->toBe(StatusChamado::FluxoEmAndamento);
 });
 
 test('cliente sem escopo de escrita recebe 403', function () {

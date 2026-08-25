@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\SistemaController;
 use App\Http\Controllers\Atendente\AuthController;
 use App\Http\Controllers\Atendente\MeController;
 use App\Http\Controllers\ChamadoController;
+use App\Http\Controllers\FluxoController;
 use App\Http\Controllers\MensagemController;
 use Illuminate\Broadcasting\BroadcastController;
 use Illuminate\Support\Facades\Route;
@@ -83,6 +84,15 @@ Route::post('broadcasting/auth', [BroadcastController::class, 'authenticate'])
  * anterior (.ai/rules/tokens.md — os dois mecanismos não se misturam).
  */
 Route::post('chamados', [ChamadoController::class, 'store'])
+    ->middleware(['cliente.token', 'cliente.scope-escrever']);
+
+/**
+ * Avançar o fluxo fixo do chamado (CHAT-023), sempre pelo cliente final
+ * dono do chamado — `AvancarFluxoService` confronta `{chamado}` contra
+ * `sistema_id`/`cliente_ref` do próprio token, nunca aceita o id "cru"
+ * (mesmo princípio de `StoreChamadoService`/`EnsureAutorizadoEnviarMensagem`).
+ */
+Route::post('chamados/{chamado}/fluxo/avancar', [FluxoController::class, 'avancar'])
     ->middleware(['cliente.token', 'cliente.scope-escrever']);
 
 /**
