@@ -47,7 +47,31 @@ Para uma varredura grande e única — auditar todos os endpoints do roadmap por
 
 ## Grafo de dependências (por que a ordem abaixo não é arbitrária)
 
+```mermaid
+flowchart TD
+    U[Usuário define tarefa/épico] --> T{Trivial/mecânica<br/>ou já coberta por teste?}
+    T -- sim --> SOLO[Só dev-laravel, sem time]
+    T -- não --> PT["plan-task (1 agente, 2 fases:<br/>Contexto → Planejar)"]
+    PT --> APR[Usuário aprova o plano]
+    APR --> DEV[dev implementa]
+    DEV -- diff pronto --> QA[qa: cobertura de teste]
+    DEV -- diff pronto --> POV[po: lógica vs critério de aceite]
+    DEV -- diff pronto --> PERF[perf: performance]
+    DEV -- diff pronto --> SEC["security: isolamento/auth<br/>(dono exclusivo da causa-raiz)"]
+    QA -- "teste falha por causa de<br/>isolamento/auth (sintoma só,<br/>sem investigar a fundo)" --> SEC
+    SEC -- achado --> DEV
+    QA --> VER[po dá veredito final]
+    POV --> VER
+    PERF --> VER
+    SEC --> VER
+    VER --> MERGE[Usuário aprova commit/PR]
+```
+
 `perf`, `po` e `security` só têm trabalho real depois que existe um diff de `dev` para analisar — a aresta `dev → revisores` é real (o input deles é o output dele), não uma sequência por hábito. Os 4 revisores, uma vez com o diff em mãos, não dependem uns dos outros — devem correr em paralelo de verdade, não um de cada vez.
+
+**Nenhum revisor além da `qa` julga o estado de `tests/**`.** `qa`, `po` e `security` rodam em paralelo de verdade — nenhum é "depois" do outro — e `tests/**` pode estar sendo escrito pela `qa` no exato momento em que outro revisor olha para ele. `po` já tinha essa restrição explícita ("cobertura de teste é insumo do qa, não sua auditoria"); a mesma regra agora vale para `security` (achado real: CHAT-023, `security` leu `AvancarFluxoTest.php` no meio da escrita da `qa`, viu o stub padrão do Pest e reportou "zero cobertura" — falso, o arquivo já tinha 9 testes reais quando a `qa` terminou segundos depois). A correção não é serializar `qa` depois de `security` — isso sacrificaria paralelismo em toda revisão para evitar uma corrida rara, e não ataca a causa: qualquer revisor que decida auditar `tests/**` por conta própria pode repetir o erro em outra janela de tempo, não importa a ordem. A causa real é `security` (ou qualquer revisor que não seja `qa`) formar conclusão sobre cobertura lendo o arquivo — a verificação empírica de segurança continua sendo feita com teste/script descartável PRÓPRIO do `security` (isso não muda), só o "relatar sobre o arquivo oficial de teste" que passa a ser exclusividade da `qa`.
+
+**Não deixe `qa` e `security` convergirem para a mesma investigação profunda.** Isolamento por `sistema_id`/RLS/auth é mandato exclusivo do `security` — se o teste de rotina da `qa` falhar de um jeito que aponte pra causa raiz nessa área (ex. GUC sujo, policy RLS incompleta), ela reporta o sintoma (input/esperado/obtido) e marca o teste com `->skip()`, sem gastar tokens reconstruindo a causa raiz via tinker — isso já é o trabalho que `security` está fazendo em paralelo. Já aconteceu (CHAT-011: os dois investigaram e chegaram à mesma causa raiz de forma independente, ~2x o custo de token pela mesma informação). Ao spawnar os 4 revisores, deixe esse recorte explícito no prompt de `qa`, não assuma que o agent-definition sozinho basta.
 
 1. Antes de qualquer alteração de código, exija um plano aprovado — vindo do workflow `plan-task` (passo 0) para épicos/tarefas não-triviais, ou redigido pelo próprio `dev` para o caso "só dev". Só aprove planos que incluam cobertura de teste (a cargo de `qa`) e que respeitem o isolamento por `sistema_id` (dupla camada: global scope Eloquent + Row Level Security).
 2. Depois que `dev` implementar, peça para `qa`, `po`, `perf` e `security` revisarem o trabalho **em paralelo** (mensagem para os 4 de uma vez, não sequencial) e reportarem achados. `po` roda em paralelo com os outros três, mas com um recorte deliberado: ele avalia lógica/comportamento contra o critério de aceite, e NÃO audita por conta própria se existe teste (isso é redundante com o trabalho que `qa` já está fazendo ao mesmo tempo, e gera falso alarme — já aconteceu de `po` reportar "reprovado por falta de teste" no exato momento em que `qa` ainda estava escrevendo os testes em paralelo). Cobertura de teste é sempre um insumo que vem do próprio `qa`, não uma checagem que `po` refaz sozinho.

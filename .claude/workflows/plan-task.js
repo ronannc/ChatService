@@ -12,9 +12,11 @@ const CONTEXT_SCHEMA = {
   required: ['criterio_aceite', 'convencoes_relevantes', 'areas_tocadas'],
   properties: {
     criterio_aceite: { type: 'string', description: 'Resumo do critério de aceite da tarefa/épico, conforme a spec no ClickUp' },
-    convencoes_relevantes: { type: 'string', description: 'Convenções de .ai/rules e CLAUDE.md aplicáveis a esta mudança' },
+    convencoes_relevantes: { type: 'string', description: 'Convenções de .ai/rules e CLAUDE.md aplicáveis a esta mudança. Se esta mudança toca um Service que já tem um "irmão" próximo no mesmo domínio (ex. outro Service em app/Services/Chamado/**), inclua aqui, de forma explícita e como item obrigatório (não sugestão), todo padrão estrutural de defesa em profundidade que o irmão já usa (ex. whereIn por sistema_id somado a withoutGlobalScope) — não deixe essa checagem só para os revisores acharem depois.' },
     areas_tocadas: { type: 'string', description: 'Camadas/arquivos existentes que esta mudança provavelmente toca (controllers, services, models, migrations)' },
     riscos_dominio: { type: 'string', description: 'Riscos de domínio conhecidos (isolamento por sistema_id, auth, RLS) relevantes a esta tarefa, se houver' },
+    subtarefas: { type: 'array', items: { type: 'string' }, description: 'Se a tarefa buscada no ClickUp for um épico com subtarefas, liste cada uma como "CHAT-XXX — nome" (id + nome). Vazio se não houver ou não for aplicável.' },
+    clickup_indisponivel: { type: 'boolean', description: 'true se o conector ClickUp não estava autenticado/acessível e você teve que parar a busca cedo (ver instrução de fail-fast no prompt)' },
   },
 }
 
@@ -46,9 +48,14 @@ if (!tarefa) {
 phase('Contexto')
 const contexto = await agent(
   `Você está planejando a tarefa/épico ChatService: "${tarefa}".
-Passo 1: busque a spec dessa tarefa no ClickUp (Space "Chat Service", doc "Regras de Negócio — Serviço de Chat de Suporte" e as tasks do roadmap CHAT-XXX) usando as ferramentas do ClickUp disponíveis.
-Passo 2: leia CLAUDE.md, .ai/rules/index.md e os rule files cujos globs cubram a área provável desta tarefa, e faça grep em .ai/rules por termos relevantes.
-Passo 3: explore o código existente (app/, database/migrations/) para entender o que já existe nessa área.
+
+Passo 1 (fail-fast, faça UMA tentativa só): tente localizar a tarefa no ClickUp (Space "Chat Service", doc "Regras de Negócio — Serviço de Chat de Suporte" e as tasks do roadmap CHAT-XXX) com 1-2 chamadas de busca direta (ex. clickup_search pelo código da tarefa). Se a ferramenta não estiver autenticada/disponível ou a primeira busca falhar por esse motivo, PARE de tentar ClickUp imediatamente — não fique tentando variações de busca nem tente compensar isso explorando o repositório a fundo em busca de pistas. Marque \`clickup_indisponivel: true\` e siga com o que você tiver: se "${tarefa}" já contém texto de spec colado pelo usuário (não só um código curto tipo "CHAT-011"), use-o como fonte primária e trate como confiável. Se não tiver nem ClickUp nem texto colado, preencha os campos com o mínimo inferível do próprio código e sinalize claramente nas perguntas em aberto que a spec não foi confirmada contra a fonte de verdade — não simule confiança que você não tem.
+Se a tarefa for um épico com subtarefas, liste-as no campo \`subtarefas\`.
+
+Passo 2 (só se passo 1 teve sucesso ou "${tarefa}" já veio com spec colada — não vale a pena gastar tool calls nisso só pra descobrir que não há spec): leia CLAUDE.md, .ai/rules/index.md e os rule files cujos globs cubram a área provável desta tarefa, e faça grep em .ai/rules por termos relevantes.
+
+Passo 3: explore o código existente (app/, database/migrations/) para entender o que já existe nessa área. Se houver um Service "irmão" no mesmo domínio (mesmo diretório em app/Services/), leia-o e note explicitamente qualquer padrão de defesa em profundidade (ex. filtro client-side por sistema_id somado a withoutGlobalScope) que a nova tarefa deveria replicar.
+
 Não escreva nem edite nenhum arquivo — isso é só levantamento de contexto.`,
   { schema: CONTEXT_SCHEMA, phase: 'Contexto' },
 )
