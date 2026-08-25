@@ -24,6 +24,16 @@ Route::post('atendentes/login', [AuthController::class, 'login'])->middleware('t
 Route::middleware(['atendente.auth-bypass', 'auth:sanctum', 'atendente.context', 'broadcasting.limpar-sistemas-permitidos'])->group(function () {
     Route::get('atendentes/me', [MeController::class, 'show']);
     Route::get('fila', [ChamadoController::class, 'index']);
+
+    /**
+     * Assumir chamado da fila (CHAT-011). `{chamado}` chega como int cru no
+     * controller, sem Route Model Binding implícito — o binding aplicaria
+     * `SistemaScope` (whereRaw(1=0) neste contexto de atendente Sanctum sem
+     * `SistemaContext::set()`), gerando 404 falso antes mesmo do Service
+     * checar permissão. Ver AssumirChamadoService e
+     * .ai/rules/chamado-fila.md.
+     */
+    Route::post('chamados/{chamado}/assumir', [ChamadoController::class, 'assumir']);
 });
 
 /**
