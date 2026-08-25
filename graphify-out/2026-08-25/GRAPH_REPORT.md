@@ -1,11 +1,11 @@
-# Graph Report - ChatService  (2026-08-24)
+# Graph Report - ChatService  (2026-08-25)
 
 ## Corpus Check
-- 210 files · ~73,093 words
+- 218 files · ~75,218 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 954 nodes · 1580 edges · 99 communities (70 shown, 29 thin omitted)
+- 980 nodes · 1643 edges · 104 communities (78 shown, 26 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 35 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
@@ -15,49 +15,51 @@
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- Sistema
-- Mensagem
-- Illuminate\Http\Request
-- Contrato do token assinado — sistema integrado → chat service
+- BuscarJwksSegurancaService
+- Atendente
+- SistemaContext
+- Queue & Job Best Practices
 - composer.json
 - Database Performance Best Practices
-- SistemaContext
+- ClienteAutenticadoBroadcast
 - scripts
-- dev-laravel agent
+- ListarFilaChamadosService.php
 - ProvisionarAtendenteExternoService
-- Security Best Practices
+- Eloquent Best Practices
 - User
 - GeradorTokenTeste
-- .ai/rules/index.md
+- ValidarTokenClienteService
 - devDependencies
 - What You Must Do When Invoked
 - Events & Notifications Best Practices
-- App\Models\Atendente
-- Illuminate\Http\JsonResponse
+- ContratoTokenCliente
+- Illuminate\Foundation\Http\FormRequest
 - laravel-best-practices skill
-- App\Models\Chamado
-- Illuminate\Database\Eloquent\Factories\Factory
+- Chamado
+- StoreMensagemTest.php
 - Routing & Controllers Best Practices
 - Pest.php
 - Configuração do Horizon
 - graphify reference: extra exports and benchmark
 - Illuminate\Database\Migrations\Migration
-- AppServiceProvider.php
-- AutorizarCanalChamadoService
+- HorizonServiceProvider
+- Contrato do token assinado — sistema integrado → chat service
 - Regras de Error Handling
 - Regras de Scheduling
-- Illuminate\Support\Facades\Schema
 - graphify reference: query, path, explain
 - Conventions & Style Best Practices
 - logging.php
 - sanctum.php
-- 2026_08_16_190000_add_index_fila_por_sistema_a_chamados_table.php
+- AtendenteContext
 - infer-conventions skill
 - Tailwind CSS Development Skill
 - plan-task.js
 - graphify reference: add a URL and watch a folder
 - whereIn + subquery over whereHas
+- Illuminate\Support\Facades\Schema
 - Illuminate\Database\Schema\Blueprint
+- RepositorioJwks
+- Sistema
 - console.php
 - laravel-boost
 - SistemaContext
@@ -78,27 +80,28 @@
 - graphify reference: GitHub clone and cross-repo merge
 - graphify reference: transcribe video and audio
 - extraction-spec.md
-- Chamado
-- ClaimTokenCliente
-- Atendente
-- ClienteAutenticadoBroadcast
-- ClaimTokenCliente.php
-- AssumirChamadoService.php
-- App\Models\Scopes\SistemaScope
-- ListarMensagensService
-- FixturesTokenTest.php
+- SistemaController.php
+- Controller
+- LoginAtendenteRequest
+- HTTP Client Best Practices
+- Security Best Practices
+- AvancarFluxoRequest
+- .ai/rules/index.md
+- Configuration Best Practices
+- Illuminate\Support\Str
+- AtendenteContext.php
 
 ## God Nodes (most connected - your core abstractions)
 1. `GeradorTokenTeste` - 49 edges
-2. `Sistema` - 47 edges
-3. `Atendente` - 38 edges
-4. `Chamado` - 36 edges
-5. `ValidarTokenClienteService` - 31 edges
-6. `SistemaContext` - 30 edges
+2. `Sistema` - 48 edges
+3. `Chamado` - 47 edges
+4. `Atendente` - 40 edges
+5. `SistemaContext` - 33 edges
+6. `ValidarTokenClienteService` - 31 edges
 7. `RepositorioJwks` - 23 edges
-8. `BuscarJwksSegurancaService` - 18 edges
-9. `ContratoTokenCliente` - 18 edges
-10. `GuardaHostSeguro` - 17 edges
+8. `TokenClienteValidado` - 19 edges
+9. `AtendenteContext` - 19 edges
+10. `BuscarJwksSegurancaService` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Single-Purpose Action Classes` --semantically_similar_to--> `Um Service por ação, controller magro`  [INFERRED] [semantically similar]
@@ -124,23 +127,23 @@
 - **Chamados dual-GUC sistema_id isolation mechanism** — ai_rules_chamado_fila_guc_current_sistema_id, ai_rules_chamado_fila_guc_sistemas_permitidos_atendente, ai_rules_chamado_fila_chamados_sistemas_permitidos_atendente_policy, app_services_chamado_listarfilachamadosservice [INFERRED 0.85]
 - **Broadcast Channel Authorization Flow** — docs_contratos_canal_chamado_broadcast, app_services_broadcasting_autorizarcanalchamadoservice, docs_contratos_token_cliente, docker_compose_reverb_service [INFERRED 0.85]
 
-## Communities (99 total, 29 thin omitted)
+## Communities (104 total, 26 thin omitted)
 
-### Community 0 - "Sistema"
-Cohesion: 0.05
-Nodes (26): TokenClienteInvalidoException, Sistema, BuscarJwksSegurancaService, RepositorioJwks, ValidarTokenClienteService, StoreSistemaService, UpdateSistemaService, CacheSistema (+18 more)
+### Community 0 - "BuscarJwksSegurancaService"
+Cohesion: 0.15
+Nodes (8): BuscarJwksSegurancaService, GuardaHostSeguro, Illuminate\Contracts\Cache\LockTimeoutException, Illuminate\Support\Facades\Cache, Illuminate\Support\Facades\Http, Illuminate\Support\Facades\Log, buscadorJwksComHostPublico(), Throwable
 
-### Community 1 - "Mensagem"
-Cohesion: 0.23
-Nodes (8): App\Models\AtendenteSistema, AtendenteSistema, sistema(), Mensagem, App\Models\Sistema, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Database\Eloquent\Model, Illuminate\Database\Eloquent\Relations\BelongsTo
+### Community 1 - "Atendente"
+Cohesion: 0.12
+Nodes (14): Atendente, AtendenteSistema, AtendenteFactory, static, AtendenteSistemaFactory, SistemaFactory, AtendenteSeeder, Illuminate\Auth\Authenticatable (+6 more)
 
-### Community 2 - "Illuminate\Http\Request"
+### Community 2 - "SistemaContext"
+Cohesion: 0.06
+Nodes (27): ResolveAtendenteContext middleware, TokenClienteInvalidoException, EnableAtendenteAuthRlsBypass, EnsureAdminApiKey, EnsureAutorizadoEnviarMensagem, EnsureParticipanteChamado, EnsureScopeEscreverCliente, EnsureValidTokenCliente (+19 more)
+
+### Community 3 - "Queue & Job Best Practices"
 Cohesion: 0.10
-Nodes (21): ResolveAtendenteContext middleware, EnableAtendenteAuthRlsBypass, EnsureAdminApiKey, EnsureAutorizadoEnviarMensagem, EnsureParticipanteChamado, EnsureScopeEscreverCliente, EnsureValidTokenCliente, IdentificarAtendenteMensagem (+13 more)
-
-### Community 3 - "Contrato do token assinado — sistema integrado → chat service"
-Cohesion: 0.05
-Nodes (44): HTTP Client Best Practices, Fake HTTP Calls in Tests (Http::fake/preventStrayRequests), Handle Errors Explicitly (throw()), Request Pooling for Concurrent Requests, Retry with Backoff for External APIs, Always Set Explicit Timeouts, Queue & Job Best Practices, Bus::batch() Batch Related Jobs (+36 more)
+Nodes (21): Queue & Job Best Practices, Bus::batch() Batch Related Jobs, Use Horizon for Complex Queue Scenarios, RateLimited Middleware for Jobs, retry_after Greater Than timeout, retryUntil() Needs tries=0, ShouldBeUnique, ShouldBeUniqueUntilProcessing (+13 more)
 
 ### Community 4 - "composer.json"
 Cohesion: 0.04
@@ -150,33 +153,37 @@ Nodes (46): pestphp/pest-plugin, php-http/discovery, autoload, autoload-dev, psr
 Cohesion: 0.06
 Nodes (30): Database Performance Best Practices, Chunk / chunkById Large Datasets, cursor() Memory-Efficient Iteration, Eager Load Relationships (N+1 prevention), Add Database Indexes, No Queries in Blade Templates, Select Only Needed Columns, withCount() for Counting Relations (+22 more)
 
-### Community 6 - "SistemaContext"
-Cohesion: 0.18
-Nodes (4): App\Services\Chamado\ListarFilaChamadosService, ListarFilaChamadosService, SistemaContext, Illuminate\Pagination\LengthAwarePaginator
+### Community 6 - "ClienteAutenticadoBroadcast"
+Cohesion: 0.14
+Nodes (4): ClienteAutenticadoBroadcast, AutorizarCanalChamadoService, Illuminate\Contracts\Auth\Authenticatable, Illuminate\Support\Facades\Broadcast
 
 ### Community 7 - "scripts"
 Cohesion: 0.08
 Nodes (27): scripts, dev, post-autoload-dump, post-create-project-cmd, post-root-package-install, post-update-cmd, pre-package-uninstall, setup (+19 more)
 
-### Community 8 - "dev-laravel agent"
-Cohesion: 0.11
-Nodes (23): RLS policy chamados_sistemas_permitidos_atendente, CHAT-021 histórico consolidado multi-sistema, SistemaContext::definirSistemasPermitidosAtendente, GUC app.current_sistema_id (isolamento cliente), GUC app.sistemas_permitidos_atendente (fila do atendente), Risco: policy OR de chamados vaza se os dois GUCs coexistirem sujos, Auth JWT do cliente final (RS256/JWKS), Auth Sanctum do atendente (+15 more)
+### Community 8 - "ListarFilaChamadosService.php"
+Cohesion: 0.08
+Nodes (28): BelongsToSistema trait, RLS policy chamados_sistemas_permitidos_atendente, CHAT-021 histórico consolidado multi-sistema, SistemaContext::definirSistemasPermitidosAtendente, GUC app.current_sistema_id (isolamento cliente), GUC app.sistemas_permitidos_atendente (fila do atendente), Risco: policy OR de chamados vaza se os dois GUCs coexistirem sujos, SistemaScope (+20 more)
 
 ### Community 9 - "ProvisionarAtendenteExternoService"
 Cohesion: 0.10
 Nodes (23): atendente_sistema (tabela de vínculo), AtendenteContext::sistemasPermitidos(), Atendente Externo (CHAT-005B), ProvisionarAtendenteExternoService, Bypass de global scope/RLS só no lookup (mecanismo), EnableAtendenteAuthRlsBypass (middleware), EnsureValidTokenCliente (middleware), Idempotência via firstOrCreate (não catch de unique) (+15 more)
 
-### Community 10 - "Security Best Practices"
-Cohesion: 0.09
-Nodes (24): Configuration Best Practices, App::environment() Checks, Constants and Language Files, Encrypted Env / External Secrets, env() Only in Config Files, Eloquent Best Practices, Define Attribute Casts, Avoid Hardcoded Table Names in Queries (+16 more)
+### Community 10 - "Eloquent Best Practices"
+Cohesion: 0.25
+Nodes (9): Eloquent Best Practices, Define Attribute Casts, Avoid Hardcoded Table Names in Queries, Cast Date Columns Properly, Apply Global Scopes Sparingly, Local Scopes for Reusable Queries, Correct Relationship Types (hasMany/belongsTo), whereBelongsTo() for Relationship Queries (+1 more)
 
 ### Community 11 - "User"
-Cohesion: 0.11
-Nodes (11): User, static, UserFactory, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Attributes\Fillable, Illuminate\Database\Eloquent\Attributes\Hidden, Illuminate\Foundation\Auth\User (+3 more)
+Cohesion: 0.16
+Nodes (9): User, static, UserFactory, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Attributes\Fillable, Illuminate\Database\Eloquent\Attributes\Hidden, Illuminate\Foundation\Auth\User (+1 more)
 
-### Community 13 - ".ai/rules/index.md"
-Cohesion: 0.18
-Nodes (8): .ai/rules/atendente-externo.md, .ai/rules/chamado-fila.md, .ai/rules/controllers.md, .ai/rules/mensagem.md, .ai/rules/services-mensagem.md, .ai/rules/tokens.md, Encrypt Sensitive Database Fields, Motivos de Invalidez (tabela fechada)
+### Community 12 - "GeradorTokenTeste"
+Cohesion: 0.07
+Nodes (5): ClaimTokenCliente, issDoToken(), GeradorTokenTeste, chavePublicaDoHeader(), motivosDeInvalidez()
+
+### Community 13 - "ValidarTokenClienteService"
+Cohesion: 0.12
+Nodes (5): ValidarTokenClienteService, UpdateSistemaService, CacheSistema, Firebase\JWT\JWK, OpenSSLAsymmetricKey
 
 ### Community 14 - "devDependencies"
 Cohesion: 0.11
@@ -190,25 +197,25 @@ Nodes (24): For /graphify add and --watch, For /graphify query, For the commit h
 Cohesion: 0.16
 Nodes (14): Events & Notifications Best Practices, afterCommit() on Notifications, Always Queue Notifications (ShouldQueue), Route Notification Channels to Dedicated Queues, Event Discovery / event:cache, HasLocalePreference on Notifiable Models, On-Demand Notifications, ShouldDispatchAfterCommit (+6 more)
 
-### Community 17 - "App\Models\Atendente"
-Cohesion: 0.14
-Nodes (10): App\Models\Atendente, Atendente, AtendenteFactory, static, Illuminate\Auth\Authenticatable, Illuminate\Database\Eloquent\Relations\HasMany, Illuminate\Routing\Middleware\ThrottleRequests, Illuminate\Support\Facades\Event (+2 more)
+### Community 17 - "ContratoTokenCliente"
+Cohesion: 0.15
+Nodes (6): .ai/rules/tokens.md, obrigatoria(), opcionais(), ContratoTokenCliente, Encrypt Sensitive Database Fields, Motivos de Invalidez (tabela fechada)
 
-### Community 18 - "Illuminate\Http\JsonResponse"
-Cohesion: 0.06
-Nodes (24): App\Http\Controllers\Admin\SistemaController, SistemaController, App\Http\Controllers\Atendente\AuthController, AuthController, App\Http\Controllers\Atendente\MeController, MeController, ChamadoController, Controller (+16 more)
+### Community 18 - "Illuminate\Foundation\Http\FormRequest"
+Cohesion: 0.22
+Nodes (5): StoreChamadoRequest, StoreMensagemRequest, Illuminate\Contracts\Validation\ValidationRule, Illuminate\Foundation\Http\FormRequest, Illuminate\Validation\Rules\Enum
 
 ### Community 19 - "laravel-best-practices skill"
 Cohesion: 0.17
 Nodes (12): Um Service por ação, controller magro, StoreSistemaService (exemplo), addSelect() correlated subqueries for single values, Single-Purpose Action Classes, $attributes->merge() in component templates, @pushOnce for per-component scripts, View Composers for shared view data, Cache::flexible() stale-while-revalidate (+4 more)
 
-### Community 20 - "App\Models\Chamado"
-Cohesion: 0.18
-Nodes (10): ChamadoAssumido, MensagemEnviada, App\Models\Chamado, Chamado, Illuminate\Broadcasting\Channel, Illuminate\Broadcasting\InteractsWithSockets, Illuminate\Broadcasting\PrivateChannel, Illuminate\Contracts\Broadcasting\ShouldBroadcast (+2 more)
+### Community 20 - "Chamado"
+Cohesion: 0.05
+Nodes (25): ChamadoAssumido, MensagemEnviada, Chamado, sistema(), FluxoDefinicao, Mensagem, StoreChamadoService, AvancarFluxoService (+17 more)
 
-### Community 21 - "Illuminate\Database\Eloquent\Factories\Factory"
+### Community 21 - "StoreMensagemTest.php"
 Cohesion: 0.18
-Nodes (6): AtendenteSistemaFactory, ChamadoFactory, static, MensagemFactory, SistemaFactory, Illuminate\Database\Eloquent\Factories\Factory
+Nodes (8): Illuminate\Auth\AuthenticationException, Illuminate\Database\QueryException, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Routing\Middleware\ThrottleRequests, Illuminate\Support\Facades\DB, Illuminate\Support\Facades\Event, Illuminate\Support\Facades\Hash, criarAtendenteNoSistema()
 
 ### Community 22 - "Routing & Controllers Best Practices"
 Cohesion: 0.17
@@ -226,9 +233,13 @@ Nodes (11): horizon:snapshot scheduling for metrics, metrics.trim_snapshots (sna
 Cohesion: 0.22
 Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only if --wiki flag), Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag), Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag), Step 7b - SVG export (only if --svg flag), Step 7c - GraphML export (only if --graphml flag), Step 7d - MCP server (only if --mcp flag), Step 8 - Token reduction benchmark (only if total_words > 5000)
 
-### Community 27 - "AppServiceProvider.php"
-Cohesion: 0.16
-Nodes (7): AppServiceProvider, HorizonServiceProvider, Illuminate\Support\Facades\Auth, Illuminate\Support\Facades\Gate, Illuminate\Support\ServiceProvider, Laravel\Horizon\Horizon, Laravel\Horizon\HorizonApplicationServiceProvider
+### Community 27 - "HorizonServiceProvider"
+Cohesion: 0.29
+Nodes (4): HorizonServiceProvider, Illuminate\Support\Facades\Gate, Laravel\Horizon\Horizon, Laravel\Horizon\HorizonApplicationServiceProvider
+
+### Community 28 - "Contrato do token assinado — sistema integrado → chat service"
+Cohesion: 0.14
+Nodes (15): Canal privado de um chamado (broadcasting) — CHAT-006, POST /api/broadcasting/auth Endpoint, private-chamado.{chamado_id} Echo Channel, Regra de Autorização (cliente vs atendente por sistema), Renovação de Token (client-side responsibility), Contrato do token assinado — sistema integrado → chat service, Cache do Cadastro do Sistema (invalidação explícita), Cadastro do Sistema (codigo, jwks_url, status) (+7 more)
 
 ### Community 29 - "Regras de Error Handling"
 Cohesion: 0.29
@@ -253,6 +264,10 @@ Nodes (4): Monolog\Handler\NullHandler, Monolog\Handler\StreamHandler, Monolog\H
 ### Community 36 - "sanctum.php"
 Cohesion: 0.40
 Nodes (4): Illuminate\Cookie\Middleware\EncryptCookies, Illuminate\Foundation\Http\Middleware\ValidateCsrfToken, Laravel\Sanctum\Http\Middleware\AuthenticateSession, Laravel\Sanctum\Sanctum
+
+### Community 37 - "AtendenteContext"
+Cohesion: 0.22
+Nodes (5): ChamadoController, AssumirChamadoService, ListarFilaChamadosService, AtendenteContext, Illuminate\Http\JsonResponse
 
 ### Community 38 - "infer-conventions skill"
 Cohesion: 0.50
@@ -282,21 +297,33 @@ Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify refer
 Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
-### Community 90 - "Chamado"
-Cohesion: 0.19
-Nodes (9): App\Enums\StatusChamado, App\Http\Controllers\MensagemController, Chamado, App\Services\Chamado\StoreChamadoService, StoreChamadoService, StoreMensagemService, Illuminate\Database\QueryException, Illuminate\Support\Facades\DB (+1 more)
+### Community 90 - "SistemaController.php"
+Cohesion: 0.24
+Nodes (4): SistemaController, StoreSistemaRequest, UpdateSistemaRequest, StoreSistemaService
 
-### Community 92 - "Atendente"
+### Community 91 - "Controller"
+Cohesion: 0.22
+Nodes (5): MeController, Controller, MensagemController, Illuminate\Broadcasting\BroadcastController, Illuminate\Support\Facades\Route
+
+### Community 92 - "LoginAtendenteRequest"
 Cohesion: 0.27
-Nodes (3): Atendente, AtendenteContext, Claim role (cliente/atendente)
+Nodes (3): AuthController, LoginAtendenteRequest, LoginAtendenteService
 
-### Community 95 - "AssumirChamadoService.php"
-Cohesion: 0.52
-Nodes (4): AssumirChamadoService, App\Support\AtendenteContext, App\Support\SistemaContext, Illuminate\Support\Collection
+### Community 93 - "HTTP Client Best Practices"
+Cohesion: 0.22
+Nodes (9): HTTP Client Best Practices, Fake HTTP Calls in Tests (Http::fake/preventStrayRequests), Handle Errors Explicitly (throw()), Request Pooling for Concurrent Requests, Retry with Backoff for External APIs, Always Set Explicit Timeouts, Exponential Backoff for Job Retries, Cache e Refetch do JWKS (§3.2) (+1 more)
 
-### Community 96 - "App\Models\Scopes\SistemaScope"
-Cohesion: 0.47
-Nodes (5): BelongsToSistema trait, App\Models\Scopes\SistemaScope, SistemaScope, Illuminate\Database\Eloquent\Builder, Illuminate\Database\Eloquent\Scope
+### Community 94 - "Security Best Practices"
+Cohesion: 0.22
+Nodes (9): Security Best Practices, Audit Dependencies (composer audit), Authorize Every Action (policies/gates), CSRF Protection, Escape Output to Prevent XSS, Mass Assignment Protection ($fillable/$guarded), Rate Limit Auth and API Routes, Validate File Uploads (+1 more)
+
+### Community 96 - ".ai/rules/index.md"
+Cohesion: 0.33
+Nodes (5): .ai/rules/atendente-externo.md, .ai/rules/chamado-fila.md, .ai/rules/controllers.md, .ai/rules/mensagem.md, .ai/rules/services-mensagem.md
+
+### Community 97 - "Configuration Best Practices"
+Cohesion: 0.33
+Nodes (6): Configuration Best Practices, App::environment() Checks, Constants and Language Files, Encrypted Env / External Secrets, env() Only in Config Files, Keep Secrets Out of Code
 
 ## Ambiguous Edges - Review These
 - `$attributes->merge() in component templates` → `View Composers for shared view data`  [AMBIGUOUS]
@@ -309,9 +336,9 @@ Nodes (5): BelongsToSistema trait, App\Models\Scopes\SistemaScope, SistemaScope,
   .claude/skills/laravel-best-practices/rules/caching.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **185 isolated node(s):** `private`, `$schema`, `build`, `dev`, `type` (+180 more)
+- **185 isolated node(s):** `meta`, `CONTEXT_SCHEMA`, `PLAN_SCHEMA`, `php`, `$schema` (+180 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **29 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -324,9 +351,9 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `Cache Tags for group invalidation` and `Failover cache stores in production`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `GeradorTokenTeste` connect `GeradorTokenTeste` to `Sistema`, `FixturesTokenTest.php`, `.ai/rules/index.md`, `ClaimTokenCliente`, `ClaimTokenCliente.php`?**
+- **Why does `Chamado` connect `Chamado` to `BuscarJwksSegurancaService`, `Atendente`, `SistemaContext`, `AtendenteContext`, `ClienteAutenticadoBroadcast`, `ListarFilaChamadosService.php`, `StoreMensagemTest.php`, `Pest.php`, `Contrato do token assinado — sistema integrado → chat service`?**
+  _High betweenness centrality (0.076) - this node is a cross-community bridge._
+- **Why does `GeradorTokenTeste` connect `GeradorTokenTeste` to `BuscarJwksSegurancaService`, `ContratoTokenCliente`, `Sistema`, `StoreMensagemTest.php`?**
   _High betweenness centrality (0.071) - this node is a cross-community bridge._
-- **Why does `Sistema` connect `Sistema` to `Mensagem`, `App\Models\Atendente`, `Illuminate\Http\JsonResponse`, `Illuminate\Database\Eloquent\Factories\Factory`, `Pest.php`, `Chamado`?**
-  _High betweenness centrality (0.068) - this node is a cross-community bridge._
-- **Why does `Chamado` connect `Chamado` to `Sistema`, `Mensagem`, `Illuminate\Http\Request`, `SistemaContext`, `AutorizarCanalChamadoService`, `App\Models\Atendente`, `App\Models\Chamado`, `Illuminate\Database\Eloquent\Factories\Factory`, `Pest.php`, `Atendente`?**
-  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+- **Why does `Sistema` connect `Sistema` to `BuscarJwksSegurancaService`, `Atendente`, `ValidarTokenClienteService`, `RepositorioJwks`, `Chamado`, `StoreMensagemTest.php`, `Pest.php`, `SistemaController.php`?**
+  _High betweenness centrality (0.070) - this node is a cross-community bridge._
